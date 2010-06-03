@@ -1,0 +1,100 @@
+#! /usr/bin/ruby
+
+$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
+
+SUB_COMMANDS = ['help', 'db', 'console', 'show']
+
+def parse_options(defaults = {}, args = ARGV)
+  defaults['environment'] ||= 'antfarm'
+  defaults['log_level']   ||= 'warn'
+
+  sub_commands = SUB_COMMANDS.collect { |s| "  #{s}" }
+  plugins      = Array.new
+  # TODO <scrapcoder>: figure out how to order these alphabetically...
+  Antfarm::Plugin.discover { |p| plugins << "  #{p}" }
+
+  return Trollop::options(args) do
+    version 'ANTFARM 0.4.0 (c) Sandia National Laboratories'
+    banner  <<-EOS
+
+Available Subcommands:
+#{sub_commands.join("\n")}
+
+Available Plugins:
+#{plugins.join("\n")}
+
+Global Options:
+    EOS
+    opt     :env,       'Antfarm environment to use', :default => defaults['environment']
+    opt     :log_level, 'Antfarm log level to use',   :default => defaults['log_level']
+    # TODO <scrapcoder>: ugh... this is ugly
+    stop_on sub_commands.collect { |s| s.strip } + plugins.collect { |p| p.strip }
+  end
+end
+
+require 'rubygems'
+require 'bundler'
+
+Bundler.require
+
+require 'yaml'
+defaults = YAML::load(IO.read(Antfarm::Helpers.defaults_file))
+
+require 'antfarm/cli'
+
+options = parse_options(defaults)
+
+ENV['ANTFARM_ENV']       = options[:env]
+ENV['ANTFARM_LOG_LEVEL'] = options[:log_level]
+
+require "#{ANTFARM_ROOT}/config/environment"
+
+framework = Antfarm::CLI::Framework.new
+
+begin
+  arg = ARGV.shift
+  case arg
+  when 'help'
+    if ARGV.empty?
+      parse_options defaults, ['-h']
+    elsif ARGV.first == 'db'
+      framework.db ['-h']
+    elsif ARGV.first == 'console'
+      framework.console ['-h']
+    else
+      framework.use ARGV.shift
+      framework.show_info
+      framework.show_options
+    end
+  when 'db'
+    framework.db ARGV
+  when 'console'
+    framework.console
+  when 'show'
+    framework.show
+  when nil
+    parse_options defaults, ['-h']
+  else
+    framework.use arg
+    options = Trollop::options do
+      banner <<-EOS
+
+Plugin - #{framework.plugin.info[:name]} (#{framework.plugin.name})
+#{framework.plugin.info[:author]}
+
+#{framework.plugin.info[:desc]}
+
+Options:
+      EOS
+      framework.plugin.options.each do |option|
+        name = option.delete(:name)
+        desc = option.delete(:desc)
+        opt name, desc, option
+      end
+    end
+    framework.run options
+  end
+rescue => err
+  puts err
+  parse_options defaults, ['-h']
+end
