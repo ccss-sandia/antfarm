@@ -33,9 +33,8 @@ Global Options:
 end
 
 require 'rubygems'
-require 'bundler'
-
-Bundler.require
+require 'antfarm-core'
+require 'trollop'
 
 require 'yaml'
 defaults = YAML::load(IO.read(Antfarm::Helpers.defaults_file))
