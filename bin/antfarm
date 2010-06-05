@@ -36,6 +36,8 @@ require 'rubygems'
 require 'antfarm-core'
 require 'trollop'
 
+Antfarm::Helpers.outputter = STDOUT
+
 require 'yaml'
 defaults = YAML::load(IO.read(Antfarm::Helpers.defaults_file))
 
@@ -94,6 +96,6 @@ Options:
     framework.run options
   end
 rescue => err
-  puts err
-  parse_options defaults, ['-h']
+# puts err
+# parse_options defaults, ['-h']
 end
