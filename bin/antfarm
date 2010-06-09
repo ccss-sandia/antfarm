@@ -14,8 +14,13 @@ def parse_options(defaults = {}, args = ARGV)
   Antfarm::Plugin.discover { |p| plugins << "  #{p}" }
 
   return Trollop::options(args) do
-    version 'ANTFARM 0.4.0 (c) Sandia National Laboratories'
+    version 'ANTFARM 0.5.0 (c) Sandia National Laboratories'
     banner  <<-EOS
+
+ANTFARM is a passive network mapping and data fusion application.
+Please see the man page (`gem man antfarm`) for more information.
+Please see the man page for ANTFARM plugins (`gem man antfarm-plugins`)
+for more detailed information about each plugin available.
 
 Available Subcommands:
 #{sub_commands.join("\n")}
