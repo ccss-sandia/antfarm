@@ -1,8 +1,8 @@
 module Antfarm
   module CLI
     class Console
-      def initialize(opts = [])
-        if opts.include? '-h'
+      def initialize(opts = Array.new)
+        if opts.include?('-h')
           puts <<-EOS
 
   The Antfarm Console drops the user into an interactive Ruby shell (irb)
