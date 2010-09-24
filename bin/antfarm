@@ -76,6 +76,8 @@ begin
       framework.db ['-h']
     elsif ARGV.first == 'console'
       framework.console ['-h']
+    elsif ARGV.first == 'show'
+      framework.show ['-h']
     else
       framework.use ARGV.shift
       framework.show_info
