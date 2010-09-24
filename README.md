@@ -13,8 +13,7 @@ passive techniques when minimizing the risk of disrupting the operational
 network is a concern.
 
 Please note that version 0.5.0 is the first version where ANTFARM is broken up
-into three separate components - the core, the plugins and the command line
-interface.
+into two separate components - the core and the command line interface.
 
 If you are looking for a version of ANTFARM pre 0.5.0, please download one of
 the tagged versions from the ANTFARM-CORE project at
