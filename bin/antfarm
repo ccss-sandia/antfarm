@@ -38,8 +38,17 @@ Global Options:
 end
 
 require 'rubygems'
-require 'antfarm-core'
 require 'trollop'
+
+begin
+  require 'antfarm-core'
+rescue LoadError
+  # If the above require fails, then maybe we're not using gems so let's assume
+  # the core library is in the same directory as this application and try to
+  # load it again.
+  $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../../antfarm-core/lib')
+  require 'antfarm-core'
+end
 
 Antfarm::Helpers.outputter = STDOUT
 
