@@ -33,7 +33,7 @@
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 
-SUB_COMMANDS = ['help', 'db', 'console', 'show']
+SUB_COMMANDS = ['help', 'db', 'console', 'show', 'version']
 
 def parse_options(defaults = {}, args = ARGV)
   defaults['environment'] ||= 'antfarm'
@@ -109,6 +109,8 @@ begin
       framework.console ['-h']
     elsif ARGV.first == 'show'
       framework.show ['-h']
+    elsif ARGV.first == 'version'
+      framework.version ['-h']
     else
       framework.use ARGV.shift
       framework.show_info
@@ -120,6 +122,8 @@ begin
     framework.console
   when 'show'
     framework.show
+  when 'version'
+    framework.version
   when nil
     parse_options defaults, ['-h']
   else

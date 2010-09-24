@@ -34,6 +34,23 @@ require 'antfarm/framework'
 module Antfarm
   module CLI
     class Framework < Antfarm::Framework
+      def version(opts = Array.new)
+        if opts.include?('-h')
+          puts <<-EOS
+
+  The Antfarm 'version' command simply displays what version of the Antfarm
+  command line interface and Antfarm core are currently in use.
+
+  Because of its simplicity, we went ahead and ran it for you... see below.
+          EOS
+        end
+
+        puts
+        puts "  Antfarm Command-Line Interface: Version #{Antfarm::CLI.version}"
+        puts "  Antfarm Core: Version #{Antfarm.version}"
+        puts
+      end
+
       def db(args)
         options = parse_db_options(args)
         if options[:clean]
@@ -58,7 +75,7 @@ module Antfarm
   The Antfarm 'show' command simply lists all the plugins currently available to
   the user, along with a description of the plugin.
 
-  Because of it's simplicity, we went ahead and ran it for you... see below.
+  Because of its simplicity, we went ahead and ran it for you... see below.
 
           EOS
         end
@@ -70,7 +87,7 @@ module Antfarm
           table.add_row([name, plugin.info[:desc]])
         end
 
-        return table.print
+        table.print
       end
 
       # TODO: <scrapcoder> - throw error if @plugin is nil
