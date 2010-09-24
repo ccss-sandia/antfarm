@@ -1,12 +1,14 @@
 module Antfarm
   module CLI
     class Plugin
+      include Antfarm::Plugin
+
       DISPLAYED_OPTIONS = [:name, :desc, :type, :default, :required]
 
       def self.show_info(plugin)
         table        = Antfarm::CLI::UI::Console::Table.new
         table.header = ['Plugin Info', '']
-        for key in Antfarm::Plugin::ALLOWED_INFO
+        for key in ALLOWED_INFO
           table.add_row([key.to_s.capitalize, plugin.info[key].to_s])
         end
         table.print
