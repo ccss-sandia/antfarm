@@ -20,7 +20,18 @@ module Antfarm
         Antfarm::CLI::Console.new(opts)
       end
 
-      def show
+      def show(opts = Array.new)
+        if opts.include?('-h')
+          puts <<-EOS
+
+  The Antfarm 'show' command simply lists all the plugins currently available to
+  the user, along with a description of the plugin.
+
+  Because of it's simplicity, we went ahead and ran it for you... see below.
+
+          EOS
+        end
+
         table        = Antfarm::CLI::UI::Console::Table.new
         table.header = ['Plugin Name', 'Plugin Description']
 
@@ -28,7 +39,7 @@ module Antfarm
           table.add_row([name, plugin.info[:desc]])
         end
 
-        table.print
+        return table.print
       end
 
       # TODO: <scrapcoder> - throw error if @plugin is nil
