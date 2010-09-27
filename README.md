@@ -19,6 +19,27 @@ If you are looking for a version of ANTFARM pre 0.5.0, please download one of
 the tagged versions from the ANTFARM-CORE project at
 http://github.com/antfarm-core.
 
+## STATUS OF BETA RELEASE
+
+Because version 0.5.0 is the first version that has the client split out from
+the core ANTFARM library, the client gem is staying in a 'beta' status while
+the core library is in 'beta' status.
+
+Note that in order to install a pre-release version of a gem (such as the beta
+version of ANTFARM 0.5.0), you must specify the --pre-release option when using
+'gem install' along with the full version name (i.e. --version 0.5.0.beta).
+
+Also, if you have version 0.4.0 and 0.5.0 installed, you can specify which
+version to use when running ANTFARM from the command line.
+
+To run version 0.4.0, do the following:
+
+  $> antfarm _0.4.0_ <command> <options>
+
+To run version 0.5.0, just replace 0.4.0 with 0.5.0 or just leave it off. The
+'_<version>_' syntax is used by the executable for each gem to allow the user
+to specify a specific version. Otherwise, the latest version is used.
+
 ## SYNOPSIS
 
 `antfarm` [ <global options> ] command|plugin [ <command/plugin options> ]
