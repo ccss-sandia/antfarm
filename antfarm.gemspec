@@ -31,7 +31,7 @@
 
 Gem::Specification.new do |s| 
   s.name           = %q{antfarm}
-  s.version        = '0.5.0.beta1'
+  s.version        = '0.5.0.beta2'
   s.authors        = ['Bryan T. Richardson','Michael Berg']
   s.email          = %q{scada@sandia.gov}
   s.date           = %q{2010-09-27}
@@ -51,6 +51,6 @@ Gem::Specification.new do |s|
   s.executables   << 'antfarm'
   s.has_rdoc       = false
 
-  s.add_dependency 'trollop'
-  s.add_dependency 'antfarm-core', '0.5.0.beta'
+  s.add_dependency 'trollop',      '1.16.2'
+  s.add_dependency 'antfarm-core', '0.5.0.beta1'
 end
