@@ -1,0 +1,8 @@
+Visualization:
+
+  Use d3 - http://d3js.org
+  From command line, create HTML and JSON code necessary
+  Call default browser with HTML page to load
+
+  Use http://mbostock.github.com/d3/talk/20111116/force-collapsible.html
+  as an example of how to do a force-directed layout
