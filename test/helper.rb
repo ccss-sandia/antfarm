@@ -3,8 +3,12 @@ unless Object.const_defined? 'Antfarm'
   require 'antfarm'
 end
 
+Antfarm::Initializer.run do |config|
+  config.environment = :test
+  config.log_level   = :debug
+end
+
 require 'minitest/autorun'
-# require 'stringio'
 
 class TestCase < MiniTest::Unit::TestCase
   def self.test(name, &block)

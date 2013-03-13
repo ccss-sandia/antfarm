@@ -155,7 +155,7 @@ module Antfarm
       logger.level = ::Logger.const_get(@configuration.log_level.upcase)
 
       ActiveRecord::Base.logger = logger
-      Antfarm::Helpers.logger_callback = lambda do |severity,msg|
+      Antfarm.logger_callback = lambda do |severity,msg|
         logger.send(severity,msg)
       end
     end

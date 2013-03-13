@@ -29,11 +29,11 @@
 #                                                                              #
 ################################################################################
 
-require File.expand_path(File.dirname(__FILE__) + '/lib/reaper/version')
+require File.expand_path(File.dirname(__FILE__) + '/lib/antfarm/version')
 
 Gem::Specification.new do |s| 
   s.name          = %q{antfarm}
-  s.version       = "#{Antfarm.version}.beta1'
+  s.version       = "#{Antfarm.version}.beta1"
   s.authors       = ['Bryan T. Richardson']
   s.email         = %q{scada@sandia.gov}
   s.date          = %q{2013-03-13}

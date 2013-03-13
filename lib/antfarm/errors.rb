@@ -35,8 +35,8 @@ module Antfarm
       super
 
       message = "#{self.class}: #{message}"
-      Antfarm::Helpers.output("Exception: #{message}")
-      Antfarm::Helpers.log :error, message
+      Antfarm.output("Exception: #{message}")
+      Antfarm.log :error, message
     end
   end
 end
