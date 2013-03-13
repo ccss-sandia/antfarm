@@ -29,20 +29,10 @@
 #                                                                              #
 ################################################################################
 
-# EthernetInterface class that wraps the ethernet_interfaces
-# table in the ANTFARM database.
-#
-# * belongs to a layer 2 interface
-#
-# What to test:
-#   * fails if MAC address is an invalid format
-#   * fails if no associated layer2_interface exists
-#   * fails if MAC address already exists
-
 module Antfarm
   module Models
     class EthernetInterface < ActiveRecord::Base
-      belongs_to :layer2_interface, :inverse_of => :ethernet_interface, :foreign_key => 'id'
+      belongs_to :layer2_interface, :inverse_of => :ethernet_interface
 
       validates :address,          :presence => true,
                                    :format   => { :with => /^([0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}$/i }

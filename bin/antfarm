@@ -87,7 +87,13 @@ when 'list'
     end
   end
 when 'init'
+  require 'fileutils'
+
   puts "Updating database for #{Antfarm.env} environment!\n\n"
+
+  FileUtils.rm_f(Antfarm::Helpers.db_file)
+  FileUtils.rm_f(Antfarm::Helpers.log_file)
+
   load 'antfarm/schema.rb'
 else
   if Antfarm.plugins.keys.include?(command)

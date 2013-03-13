@@ -29,31 +29,15 @@
 #                                                                              #
 ################################################################################
 
-# Layer2Interface class that wraps the layer2_interfaces table
-# in the ANTFARM database.
-#
-# * has many layer 3 interfaces
-# * has one ethernet interface
-# * belongs to a node
-#
-# What to test:
-#   * certainty factor is provided and clamped properly
-#   * interface_addressed works correctly
-#   * creates a generic node or a specific node if info provided
-#   * associates itself with an existing node if one is found to exist
-#   * creates an ethernet interface if info provided
-#   * creation of interface fails if creation of ethernet_interface or
-#     node fails
-
 module Antfarm
   module Models
     class Layer2Interface < ActiveRecord::Base
-      has_many   :layer3_interfaces
-      has_one    :ethernet_interface, :inverse_of => :layer2_interface, :foreign_key => 'id'
-      belongs_to :node
+      has_many   :layer3_interfaces,  :inverse_of => :layer2_interface
+      has_one    :ethernet_interface, :inverse_of => :layer2_interface
+      belongs_to :node,               :inverse_of => :layer2_interfaces
 
+      accepts_nested_attributes_for :layer3_interfaces
       accepts_nested_attributes_for :ethernet_interface
-#     accepts_nested_attributes_for :layer3_interfaces
 
       before_save :clamp_certainty_factor
 

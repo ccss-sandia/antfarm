@@ -29,20 +29,11 @@
 #                                                                              #
 ################################################################################
 
-# Node class that wraps the nodes table in the ANTFARM database.
-#
-# * has many layer 2 interfaces
-# * has many layer 3 interfaces through layer 2 interfaces
-#
-# What to test:
-#   * Make sure certainty factor is present and gets clamped appropriately
-#   * Ensure node_named and nodes_of_device_type work correctly
-
 module Antfarm
   module Models
     class Node < ActiveRecord::Base
-      has_many :layer2_interfaces
-#     has_many :layer3_interfaces, :through => :layer2_interfaces
+      has_many :layer2_interfaces, :inverse_of => :node
+      has_many :layer3_interfaces, :through => :layer2_interfaces
 #     has_many :services
 #     has_one  :operating_system
 
