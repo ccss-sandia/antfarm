@@ -3,9 +3,9 @@ antfarm(1) -- passive network mapping tool
 
 ## SYNOPSIS
 
-`antfarm` [ <global options> ] command|plugin [ <command/plugin options> ]
+`antfarm [ <global options> ] command|plugin [ <command/plugin options> ]`
 
-`antfarm` -h, --help
+`antfarm -h, --help`
 
 ## DESCRIPTION
 
@@ -78,7 +78,7 @@ Display the default help message for ANTFARM:
 
 Show information about all the plugins currently available in ANTFARM:
 
-    $ antfarm show
+    $ antfarm list
 
 Show information specific to an available ANTFARM plugin:
 
