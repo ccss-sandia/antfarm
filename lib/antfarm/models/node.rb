@@ -37,6 +37,8 @@ module Antfarm
 #     has_many :services
 #     has_one  :operating_system
 
+      accepts_nested_attributes_for :layer2_interfaces
+
       validates :certainty_factor, :presence => true
 
       before_save :clamp_certainty_factor
