@@ -127,7 +127,7 @@ module Antfarm
         # Just to be safe... don't want to wipe out existing user data!
         unless File.exists?(path)
           FileUtils.makedirs(path)
-          Antfarm::Helpers.log :info, "User '#{directory}' directory created in #{ENV['HOME'] + '/.antfarm'}"
+          Antfarm.log :info, "User '#{directory}' directory created in #{ENV['HOME'] + '/.antfarm'}"
         end
       end
 
@@ -139,7 +139,7 @@ module Antfarm
           file.puts 'environment: antfarm'
           file.puts 'log_level: warn'
         end
-        Antfarm::Helpers.log :info, "Default config file created at #{ENV['HOME'] + '/.antfarm/config.yml'}"
+        Antfarm.log :info, "Default config file created at #{ENV['HOME'] + '/.antfarm/config.yml'}"
       end
 
       return @user_dir = (ENV['HOME'] + '/.antfarm')
