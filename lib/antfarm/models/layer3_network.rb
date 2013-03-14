@@ -33,7 +33,7 @@ module Antfarm
   module Models
     class Layer3Network < ActiveRecord::Base
       has_many :layer3_interfaces, :inverse_of => :layer3_network
-      has_one  :ip_network,        :inverse_of => :layer3_network
+      has_one  :ip_network,        :inverse_of => :layer3_network, :dependent => :destroy
 
       accepts_nested_attributes_for :ip_network
 
@@ -62,7 +62,7 @@ module Antfarm
 
             # TODO: update network's certainty factor using sub_network's certainty factor.
             
-            network.save false
+            network.save
 
             # Because of :dependent => :destroy above, calling destroy
             # here will also cause destroy to be called on ip_network

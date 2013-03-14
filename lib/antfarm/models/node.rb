@@ -32,8 +32,8 @@
 module Antfarm
   module Models
     class Node < ActiveRecord::Base
-      has_many :layer2_interfaces, :inverse_of => :node
-      has_many :layer3_interfaces, :through => :layer2_interfaces
+      has_many :layer2_interfaces, :inverse_of => :node,           :dependent => :destroy
+      has_many :layer3_interfaces, :through => :layer2_interfaces, :dependent => :destroy
 #     has_many :services
 #     has_one  :operating_system
 
