@@ -46,7 +46,7 @@ module Antfarm
       # Find and return nodes found with the given name.
       def self.node_named(name)
         unless name
-          raise ArgumentError, 'nil argument supplied', caller
+          raise AntfarmError, 'nil argument supplied', caller
         end
 
         nodes = self.find_all_by_name(name)
@@ -63,7 +63,7 @@ module Antfarm
       # Find and return all the nodes found that are the given type.
       def self.nodes_of_device_type(device_type)
         unless device_type
-          raise ArgumentError, 'nil argument supplied', caller
+          raise AntfarmError, 'nil argument supplied', caller
         end
 
         nodes = self.find_all_by_device_type(device_type)

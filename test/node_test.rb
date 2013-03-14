@@ -23,7 +23,7 @@ class NodeTest < TestCase
   test 'search fails when no name given' do
     Fabricate :node
 
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Node.node_named(nil)
     end
 
@@ -37,7 +37,7 @@ class NodeTest < TestCase
   test 'search fails when no device type given' do
     Fabricate :node
 
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Node.nodes_of_device_type(nil)
     end
 

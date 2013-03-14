@@ -36,7 +36,7 @@ class Layer2InterfaceTest < TestCase
 
   test 'search fails when no address given' do
     Fabricate :l2iface, :ethernet_interface_attributes => { :address => 'AB:00:00:00:00:00' }
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Layer2Interface.interface_addressed(nil)
     end
 

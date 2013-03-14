@@ -49,7 +49,7 @@ module Antfarm
       # with the given IP address.
       def self.interface_addressed(ip_addr_str)
         unless ip_addr_str
-          raise ArgumentError, 'nil argument supplied', caller
+          raise AntfarmError, 'nil argument supplied', caller
         end
 
         if ip_if = IpInterface.find_by_address(ip_addr_str)

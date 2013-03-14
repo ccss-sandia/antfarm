@@ -29,11 +29,11 @@ class Layer3NetworkTest < TestCase
   test 'addressed/containing search fails when no address given' do
     Fabricate :l3net, :ip_network_attributes => { :address => '10.0.0.0/24' }
 
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Layer3Network.network_addressed(nil)
     end
 
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Layer3Network.network_containing(nil)
     end
 
@@ -50,7 +50,7 @@ class Layer3NetworkTest < TestCase
   test 'contained_within search fails when no address given' do
     Fabricate :l3net, :ip_network_attributes => { :address => '10.0.0.0/24' }
 
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Layer3Network.networks_contained_within(nil)
     end
 
@@ -63,7 +63,7 @@ class Layer3NetworkTest < TestCase
   end
 
   test 'merging of subnetworks within a new, larger network' do
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Layer3Network.merge(nil)
     end
 

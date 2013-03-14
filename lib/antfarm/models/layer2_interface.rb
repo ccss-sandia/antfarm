@@ -48,7 +48,7 @@ module Antfarm
       # with the given ethernet address.
       def self.interface_addressed(mac_addr_str)
         unless mac_addr_str
-          raise ArgumentError, 'nil argument supplied', caller
+          raise AntfarmError, 'nil argument supplied', caller
         end
 
         if eth_if = EthernetInterface.find_by_address(mac_addr_str)

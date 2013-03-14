@@ -45,7 +45,7 @@ module Antfarm
       # any sub_networks of the given network.
       def self.merge(network, merge_certainty_factor = Antfarm::CF_PROVEN_TRUE)
         unless network 
-          raise(ArgumentError, "nil argument supplied", caller)
+          raise AntfarmError, "nil argument supplied", caller
         end
 
         for sub_network in self.networks_contained_within(network.ip_network.address)
@@ -82,7 +82,7 @@ module Antfarm
       # Find the Layer3Network the given network is a sub_network of, if one exists.
       def self.network_containing(ip_net_str)
         unless ip_net_str
-          raise(ArgumentError, "nil argument supplied", caller)
+          raise AntfarmError, "nil argument supplied", caller
         end
 
         # Don't want to require a Layer3Network to be passed in case a check is being performed
@@ -102,7 +102,7 @@ module Antfarm
       # Find any Layer3Networks that are sub_networks of the given network.
       def self.networks_contained_within(ip_net_str)
         unless ip_net_str
-          raise(ArgumentError, "nil argument supplied", caller)
+          raise AntfarmError, "nil argument supplied", caller
         end
 
         # Don't want to require a Layer3Network to be passed in case a check is being performed
