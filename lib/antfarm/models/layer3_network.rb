@@ -1,126 +1,130 @@
-# Copyright (2008) Sandia Corporation.
-# Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-# the U.S. Government retains certain rights in this software.
-#
-# Original Author: Bryan T. Richardson, Sandia National Laboratories <btricha@sandia.gov>
-# Derived From: code written by Michael Berg <mjberg@sandia.gov>
-#
-# This library is free software; you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2.1 of the License, or (at
-# your option) any later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+################################################################################
+#                                                                              #
+# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
+# certain rights in this software.                                             #
+#                                                                              #
+# Permission is hereby granted, free of charge, to any person obtaining a copy #
+# of this software and associated documentation files (the "Software"), to     #
+# deal in the Software without restriction, including without limitation the   #
+# rights to use, copy, modify, merge, publish, distribute, distribute with     #
+# modifications, sublicense, and/or sell copies of the Software, and to permit #
+# persons to whom the Software is furnished to do so, subject to the following #
+# conditions:                                                                  #
+#                                                                              #
+# The above copyright notice and this permission notice shall be included in   #
+# all copies or substantial portions of the Software.                          #
+#                                                                              #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   #
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     #
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE  #
+# ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, #
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR #
+# IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE          #
+# SOFTWARE.                                                                    #
+#                                                                              #
+# Except as contained in this notice, the name(s) of the above copyright       #
+# holders shall not be used in advertising or otherwise to promote the sale,   #
+# use or other dealings in this Software without prior written authorization.  #
+#                                                                              #
+################################################################################
 
-# Layer3Network class that wraps the layer3_networks table
-# in the ANTFARM database.
-#
-# * has many layer 3 interfaces
-# * has one IP network
-class Layer3Network < ActiveRecord::Base
-  has_many :layer3_interfaces
-  has_one  :ip_network, :foreign_key => "id", :dependent => :destroy
+module Antfarm
+  module Models
+    class Layer3Network < ActiveRecord::Base
+      has_many :layer3_interfaces, :inverse_of => :layer3_network
+      has_one  :ip_network,        :inverse_of => :layer3_network
 
-  before_save :clamp_certainty_factor
+      accepts_nested_attributes_for :ip_network
 
-  validates_presence_of :certainty_factor
+      before_save :clamp_certainty_factor
 
-  # Take the given network and merge with it
-  # any sub_networks of the given network.
-  def self.merge(network, merge_certainty_factor = Antfarm::CF_PROVEN_TRUE)
-    unless network 
-      raise(ArgumentError, "nil argument supplied", caller)
-    end
+      validates :certainty_factor, :presence => true
 
-    for sub_network in self.networks_contained_within(network.ip_network.address)
-      unless sub_network == network 
-        unless merge_certainty_factor
-          merge_certainty_factor = Antfarm::CF_LACK_OF_PROOF
+      # Take the given network and merge with it
+      # any sub_networks of the given network.
+      def self.merge(network, merge_certainty_factor = Antfarm::CF_PROVEN_TRUE)
+        unless network 
+          raise(ArgumentError, "nil argument supplied", caller)
         end
 
-        merge_certainty_factor = Antfarm.clamp(merge_certainty_factor)
+        for sub_network in self.networks_contained_within(network.ip_network.address)
+          unless sub_network == network 
+            unless merge_certainty_factor
+              merge_certainty_factor = Antfarm::CF_LACK_OF_PROOF
+            end
 
-        network.layer3_interfaces << sub_network.layer3_interfaces
-        network.layer3_interfaces.flatten!
-        network.layer3_interfaces.uniq!
+            merge_certainty_factor = Antfarm.clamp(merge_certainty_factor)
 
-        # TODO: update network's certainty factor using sub_network's certainty factor.
-        
-        network.save false
+            network.layer3_interfaces << sub_network.layer3_interfaces
+            network.layer3_interfaces.flatten!
+            network.layer3_interfaces.uniq!
 
-        # Because of :dependent => :destroy above, calling destroy
-        # here will also cause destroy to be called on ip_network
-        sub_network.destroy
+            # TODO: update network's certainty factor using sub_network's certainty factor.
+            
+            network.save false
+
+            # Because of :dependent => :destroy above, calling destroy
+            # here will also cause destroy to be called on ip_network
+            sub_network.destroy
+          end
+        end
+      end
+
+      # Find the Layer3Network with the given address.
+      def self.network_addressed(ip_net_str)
+        # Calling network_containing here because if a network already exists that encompasses
+        # the given network, we want to automatically use that network instead.
+        # TODO: figure out how to use alias with class methods
+        self.network_containing(ip_net_str)
+      end
+
+      # Find the Layer3Network the given network is a sub_network of, if one exists.
+      def self.network_containing(ip_net_str)
+        unless ip_net_str
+          raise(ArgumentError, "nil argument supplied", caller)
+        end
+
+        # Don't want to require a Layer3Network to be passed in case a check is being performed
+        # before a Layer3Network is created.
+        network = Antfarm::IPAddrExt.new(ip_net_str)
+
+        ip_nets = IpNetwork.find(:all)
+        for ip_net in ip_nets
+          if Antfarm::IPAddrExt.new(ip_net.address).network_in_network?(network)
+            return Layer3Network.find(ip_net.id)
+          end
+        end
+
+        return nil
+      end
+
+      # Find any Layer3Networks that are sub_networks of the given network.
+      def self.networks_contained_within(ip_net_str)
+        unless ip_net_str
+          raise(ArgumentError, "nil argument supplied", caller)
+        end
+
+        # Don't want to require a Layer3Network to be passed in case a check is being performed
+        # before a Layer3Network is created.
+        network = Antfarm::IPAddrExt.new(ip_net_str)
+        sub_networks = Array.new
+
+        ip_nets = IpNetwork.find(:all)
+        for ip_net in ip_nets
+          sub_networks << Layer3Network.find(ip_net.id) if network.network_in_network?(ip_net.address)
+        end
+
+        return sub_networks
+      end
+
+      #######
+      private
+      #######
+
+      def clamp_certainty_factor
+        self.certainty_factor = Antfarm.clamp(self.certainty_factor)
       end
     end
-  end
-
-  # Find the Layer3Network with the given address.
-  def self.network_addressed(ip_net_str)
-    # Calling network_containing here because if a network already exists that encompasses
-    # the given network, we want to automatically use that network instead.
-    # TODO: figure out how to use alias with class methods
-    self.network_containing(ip_net_str)
-  end
-
-  # Find the network the given network is a sub_network of, if one exists.
-  def self.network_containing(ip_net_str)
-    unless ip_net_str
-      raise(ArgumentError, "nil argument supplied", caller)
-    end
-
-    # Don't want to require a Layer3Network to be passed in case a check is being performed
-    # before a Layer3Network is created.
-    network = Antfarm::IPAddrExt.new(ip_net_str)
-
-    ip_nets = IpNetwork.find(:all)
-    for ip_net in ip_nets
-      if Antfarm::IPAddrExt.new(ip_net.address).network_in_network?(network)
-        return Layer3Network.find(ip_net.id)
-      end
-    end
-
-    return nil
-  end
-
-  # Find any Layer3Networks that are sub_networks of the given network.
-  def self.networks_contained_within(ip_net_str)
-    unless ip_net_str
-      raise(ArgumentError, "nil argument supplied", caller)
-    end
-
-    # Don't want to require a Layer3Network to be passed in case a check is being performed
-    # before a Layer3Network is created.
-    network = Antfarm::IPAddrExt.new(ip_net_str)
-    sub_networks = Array.new
-
-    ip_nets = IpNetwork.find(:all)
-    for ip_net in ip_nets
-      sub_networks << Layer3Network.find(ip_net.id) if network.network_in_network?(ip_net.address)
-    end
-
-    return sub_networks
-  end
-
-  # This is for ActiveScaffold
-  def to_label #:nodoc:
-    return "#{id} -- #{ip_network.address}" if ip_network
-    return "#{id} -- Generic Layer3 Network"
-  end
-
-  #######
-  private
-  #######
-
-  def clamp_certainty_factor
-    self.certainty_factor = Antfarm.clamp(self.certainty_factor)
   end
 end
-

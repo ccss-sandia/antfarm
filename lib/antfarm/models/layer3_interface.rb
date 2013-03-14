@@ -29,39 +29,21 @@
 #                                                                              #
 ################################################################################
 
-# Layer3Interface class that wraps the layer3_interfaces table
-# in the ANTFARM database.
-#
-# * has many traffic entries (defined as outbound_traffic)
-# * has many traffic entries (defined as inbound_traffic)
-# * has one IP interface
-# * belongs to a layer 3 network
-# * belongs to a layer 2 interface
-#
-# What to test:
-#   * certainty factor provided and clamped if necessary
-#   * interface_addressed works correctly
-#   * creates generic layer2_interface or specific interface if info provided
-#   * uses existing layer2_interface if MAC address provided
-#   * creates ip_interface if IP address provided
-#   * creation of interface fails if creation of any downstream associated
-#     models fails
-
 module Antfarm
   module Models
     class Layer3Interface < ActiveRecord::Base
 #     has_many   :outbound_traffic, :class_name => 'Traffic', :foreign_key => 'source_layer3_interface_id'
 #     has_many   :inbound_traffic,  :class_name => 'Traffic', :foreign_key => 'target_layer3_interface_id'
-      has_one    :ip_interface, :inverse_of => :layer3_interface, :foreign_key => 'id'
-      belongs_to :layer2_interface
-#     belongs_to :layer3_network
+      has_one    :ip_interface,     :inverse_of => :layer3_interface
+      belongs_to :layer2_interface, :inverse_of => :layer3_interfaces
+      belongs_to :layer3_network,   :inverse_of => :layer3_interfaces
 
       accepts_nested_attributes_for :ip_interface
 
-      before_save :clamp_certainty_factor
-
       validates :layer2_interface, :presence => true
       validates :certainty_factor, :presence => true
+
+      before_save :clamp_certainty_factor
 
       # Find and return the layer 3 interface
       # with the given IP address.

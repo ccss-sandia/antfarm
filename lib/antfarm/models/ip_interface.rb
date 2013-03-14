@@ -29,22 +29,10 @@
 #                                                                              #
 ################################################################################
 
-# IpInterface class that wraps the ip_interfaces table
-# in the ANTFARM database.
-#
-# * belongs to a layer 3 interface
-#
-# What to test:
-#   * fails if IP address is an invalid format
-#   * fails if no associated layer3_interface exists
-#   * fails if IP address is a loopback address
-#   * creates a layer3_network when a new interface is created
-#   * fails if IP address already exists, but still creates a layer3_network
-
 module Antfarm
   module Models
     class IpInterface < ActiveRecord::Base
-      belongs_to :layer3_interface, :inverse_of => :ip_interface, :foreign_key => 'id'
+      belongs_to :layer3_interface, :inverse_of => :ip_interface
 
       validates :address,          :presence => true
       validates :layer3_interface, :presence => true

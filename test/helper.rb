@@ -1,7 +1,4 @@
-unless Object.const_defined? 'Antfarm'
-  $:.unshift File.expand_path('../lib', __FILE__)
-  require 'antfarm'
-end
+require 'antfarm'
 
 Antfarm::Initializer.run do |config|
   config.environment = :test
@@ -9,9 +6,16 @@ Antfarm::Initializer.run do |config|
 end
 
 require 'minitest/autorun'
+require 'fabrication'
 
 class TestCase < MiniTest::Unit::TestCase
   def self.test(name, &block)
     define_method("test_#{name.gsub(/\W/, '_')}", &block) if block
+  end
+
+  def setup
+    ActiveRecord::Migration.suppress_messages do
+      load 'antfarm/schema.rb'
+    end
   end
 end
