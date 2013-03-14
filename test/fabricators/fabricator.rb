@@ -27,3 +27,8 @@ end
 Fabricator(:l3net, :class_name => Antfarm::Models::Layer3Network) do
   certainty_factor 0.5
 end
+
+Fabricator(:ipnet, :class_name => Antfarm::Models::IpNetwork) do
+  layer3_network :fabricator => :l3net
+  address        '10.0.0.0/24'
+end

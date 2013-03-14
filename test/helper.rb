@@ -1,8 +1,11 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'antfarm'
 
 Antfarm::Initializer.run do |config|
-  config.environment = :test
-  config.log_level   = :debug
+  config.environment = 'test'
+  config.log_level   = 'debug'
 end
 
 require 'minitest/autorun'
@@ -14,6 +17,8 @@ class TestCase < MiniTest::Unit::TestCase
   end
 
   def setup
+#   FileUtils.rm_f(Antfarm::Helpers.log_file)
+
     ActiveRecord::Migration.suppress_messages do
       load 'antfarm/schema.rb'
     end

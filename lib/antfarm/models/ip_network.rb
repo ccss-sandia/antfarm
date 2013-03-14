@@ -35,9 +35,10 @@ module Antfarm
       belongs_to :layer3_network,  :inverse_of => :ip_network
       belongs_to :private_network, :inverse_of => :ip_networks
 
- #    before_create :create_layer3_network
- #    before_create :set_private_address
- #    after_create  :merge_layer3_networks
+      before_validation :create_layer3_network, :on => :create
+
+      before_create :set_private_address
+      after_create  :merge_layer3_networks
 
       validates :address,        :presence => true
       validates :layer3_network, :presence => true
@@ -47,10 +48,10 @@ module Antfarm
       # class can confidently access the ip address for this network.
       #
       # the method address= is called by the constructor of this class.
-    # def address=(ip_addr) #:nodoc:
-    #   @ip_net = Antfarm::IPAddrExt.new(ip_addr)
-    #   super(@ip_net.to_cidr_string)
-    # end
+#     def address=(ip_addr) #:nodoc:
+#       @ip_net = Antfarm::IPAddrExt.new(ip_addr)
+#       super(@ip_net.to_cidr_string)
+#     end
 
       # Validate data for requirements before saving network to the database.
       #
@@ -62,8 +63,10 @@ module Antfarm
 
           # Don't save the network if it's a loopback network.
           if addr.loopback_address?
-            errors.add(:address, "loopback address not allowed")
+            record.errors.add(:address, "loopback address not allowed")
           end
+        rescue ArgumentError
+          record.errors.add(:address, "Invalid IP network: #{value}")
         end
       end
 
@@ -72,26 +75,22 @@ module Antfarm
       #######
 
       def set_private_address
-        self.private = @ip_net.private_address?
-        # TODO: Create private network objects.
-        return # if we don't do this, then a false is returned and the save fails
+        self.private = Antfarm::IPAddrExt.new(self.address).private_address?
+
+        if self.private
+          self.create_private_network :description => "Private network for #{self.address}"
+        end
       end
 
       def create_layer3_network
-        # If we get to this point, then we know a network does not
-        # already exist because validate gets called before
-        # this method and we're checking for existing networks in
-        # validate.  Therefore, we know a new network needs to be created,
-        # unless it was specified by the user.
         unless self.layer3_network
           layer3_network = Layer3Network.new :certainty_factor => 0.75
-          layer3_network.protocol = @layer3_network_protocol if @layer3_network_protocol
           if layer3_network.save
-            logger.info("IpNetwork: Created Layer 3 Network")
+            Antfarm.log :info, 'IpNetwork: Created Layer 3 Network'
           else
-            logger.warn("IpNetwork: Errors occured while creating Layer 3 Network")
-            layer3_network.errors.each_full do |msg|
-              logger.warn(msg)
+            Antfarm.log :warn, 'IpNetwork: Errors occured while creating Layer 3 Network'
+            layer3_network.errors.full_messages do |msg|
+              Antfarm.log :warn, msg
             end
           end
 
