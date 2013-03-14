@@ -5,39 +5,25 @@ class IpInterfaceTest < TestCase
 
   test 'fails with no layer 3 interface' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      IpInterface.create!(
-        :address => '192.168.101.101'
-      )
+      Fabricate :ipiface, :layer3_interface => nil
     end
 
-    assert !IpInterface.create(
-      :address => '192.168.101.101'
-    ).valid?
+    assert !Fabricate.build(:ipiface, :layer3_interface => nil).valid?
   end
 
   test 'fails with no address' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      IpInterface.create!(
-        :layer3_interface => Layer3Interface.last
-      )
+      Fabricate :ipiface, :address => nil
     end
 
-    assert !IpInterface.create(
-      :layer3_interface => Layer3Interface.last
-    ).valid?
+    assert !Fabricate.build(:ipiface, :address => nil).valid?
   end
 
   test 'fails with invalid address' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      IpInterface.create!(
-        :layer3_interface => Layer3Interface.last,
-        :address => '276.87.355.4'
-      )
+      Fabricate :ipiface, :address => '276.87.355.4'
     end
 
-    assert !IpInterface.create(
-      :layer3_interface => Layer3Interface.last,
-      :address => '276.87.355.4'
-    ).valid?
+    assert !Fabricate.build(:ipiface, :address => '276.87.355.4').valid?
   end
 end
