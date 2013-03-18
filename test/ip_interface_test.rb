@@ -1,4 +1,4 @@
-require 'helper'
+require 'test_helper'
 
 class IpInterfaceTest < TestCase
   include Antfarm::Models

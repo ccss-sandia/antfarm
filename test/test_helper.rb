@@ -1,5 +1,5 @@
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start { add_filter '/test/' }
 
 require 'antfarm'
 

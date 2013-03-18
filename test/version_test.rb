@@ -1,4 +1,4 @@
-require 'helper'
+require 'test_helper'
 
 class VersionTest < TestCase
   test 'correct version' do

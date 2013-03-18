@@ -1,4 +1,4 @@
-require 'helper'
+require 'test_helper'
 
 class Layer3InterfaceTest < TestCase
   include Antfarm::Models

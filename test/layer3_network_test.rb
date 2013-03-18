@@ -1,4 +1,4 @@
-require 'helper'
+require 'test_helper'
 
 class Layer3NetworkTest < TestCase
   include Antfarm::Models
