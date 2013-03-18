@@ -17,8 +17,6 @@ class TestCase < MiniTest::Unit::TestCase
   end
 
   def setup
-#   FileUtils.rm_f(Antfarm::Helpers.log_file)
-
     ActiveRecord::Migration.suppress_messages do
       load 'antfarm/schema.rb'
     end
