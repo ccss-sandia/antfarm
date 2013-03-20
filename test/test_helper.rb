@@ -1,8 +1,11 @@
+require 'simplecov'
+SimpleCov.start { add_filter '/test/' }
+
 require 'antfarm'
 
 Antfarm::Initializer.run do |config|
-  config.environment = :test
-  config.log_level   = :debug
+  config.environment = 'test'
+  config.log_level   = 'debug'
 end
 
 require 'minitest/autorun'

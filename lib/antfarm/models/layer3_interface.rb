@@ -34,7 +34,7 @@ module Antfarm
     class Layer3Interface < ActiveRecord::Base
 #     has_many   :outbound_traffic, :class_name => 'Traffic', :foreign_key => 'source_layer3_interface_id'
 #     has_many   :inbound_traffic,  :class_name => 'Traffic', :foreign_key => 'target_layer3_interface_id'
-      has_one    :ip_interface,     :inverse_of => :layer3_interface
+      has_one    :ip_interface,     :inverse_of => :layer3_interface, :dependent => :destroy
       belongs_to :layer2_interface, :inverse_of => :layer3_interfaces
       belongs_to :layer3_network,   :inverse_of => :layer3_interfaces
 
@@ -49,7 +49,7 @@ module Antfarm
       # with the given IP address.
       def self.interface_addressed(ip_addr_str)
         unless ip_addr_str
-          raise ArgumentError, 'nil argument supplied', caller
+          raise AntfarmError, 'nil argument supplied', caller
         end
 
         if ip_if = IpInterface.find_by_address(ip_addr_str)

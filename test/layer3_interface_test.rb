@@ -1,4 +1,4 @@
-require 'helper'
+require 'test_helper'
 
 class Layer3InterfaceTest < TestCase
   include Antfarm::Models
@@ -36,7 +36,7 @@ class Layer3InterfaceTest < TestCase
 
   test 'search fails when no address given' do
     Fabricate :l3iface, :ip_interface_attributes => { :address => '10.0.0.1' }
-    assert_raises(ArgumentError) do
+    assert_raises(Antfarm::AntfarmError) do
       Layer3Interface.interface_addressed(nil)
     end
 

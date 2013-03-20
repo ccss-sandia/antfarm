@@ -32,8 +32,8 @@
 module Antfarm
   module Models
     class Layer2Interface < ActiveRecord::Base
-      has_many   :layer3_interfaces,  :inverse_of => :layer2_interface
-      has_one    :ethernet_interface, :inverse_of => :layer2_interface
+      has_many   :layer3_interfaces,  :inverse_of => :layer2_interface, :dependent => :destroy
+      has_one    :ethernet_interface, :inverse_of => :layer2_interface, :dependent => :destroy
       belongs_to :node,               :inverse_of => :layer2_interfaces
 
       accepts_nested_attributes_for :layer3_interfaces
@@ -48,7 +48,7 @@ module Antfarm
       # with the given ethernet address.
       def self.interface_addressed(mac_addr_str)
         unless mac_addr_str
-          raise ArgumentError, 'nil argument supplied', caller
+          raise AntfarmError, 'nil argument supplied', caller
         end
 
         if eth_if = EthernetInterface.find_by_address(mac_addr_str)

@@ -130,7 +130,7 @@ module Antfarm
       # Database setup based on adapter specified
       if config && config[@configuration.environment] and config[@configuration.environment].has_key?('adapter')
         if config[@configuration.environment]['adapter'] == 'sqlite3'
-          config[@configuration.environment]['database'] = Antfarm::Helpers.db_file(@configuration.environment)
+          config[@configuration.environment]['database'] = Antfarm::Helpers.db_file
         elsif config[@configuration.environment]['adapter'] == 'postgres'
           config[@configuration.environment]['database'] = @configuration.environment
         else
