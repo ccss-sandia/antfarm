@@ -44,4 +44,22 @@ class NodeTest < TestCase
     assert_nil     Node.nodes_of_device_type('foo')
     assert_kind_of Array, Node.nodes_of_device_type('RTU')
   end
+
+  test 'creates full stack of records using attributes' do
+    Fabricate :node,
+      :layer2_interfaces_attributes => [{
+        :certainty_factor => 1.0, :media_type => 'Ethernet',
+        :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
+          :ip_interface_attributes => { :address => '192.168.101.5/24' }
+        }]
+      }]
+
+    iface = Layer3Interface.interface_addressed('192.168.101.5')
+    net   = Layer3Network.network_addressed('192.168.101.0/24')
+
+    assert iface
+    assert net
+
+    assert net == iface.layer3_network
+  end
 end

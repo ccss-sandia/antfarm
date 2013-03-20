@@ -48,6 +48,8 @@ module Antfarm
           raise AntfarmError, "nil argument supplied", caller
         end
 
+        Antfarm.output "  Merge called for #{network.ip_network.address}"
+
         for sub_network in self.networks_contained_within(network.ip_network.address)
           unless sub_network == network 
             unless merge_certainty_factor
@@ -56,13 +58,17 @@ module Antfarm
 
             merge_certainty_factor = Antfarm.clamp(merge_certainty_factor)
 
-            network.layer3_interfaces << sub_network.layer3_interfaces
-            network.layer3_interfaces.flatten!
-            network.layer3_interfaces.uniq!
+            sub_network.layer3_interfaces.each do |iface|
+              iface.update_attribute :layer3_network, network
+            end
+
+#           network.layer3_interfaces << sub_network.layer3_interfaces
+#           network.layer3_interfaces.flatten!
+#           network.layer3_interfaces.uniq!
 
             # TODO: update network's certainty factor using sub_network's certainty factor.
             
-            network.save
+            network.save!
 
             # Because of :dependent => :destroy above, calling destroy
             # here will also cause destroy to be called on ip_network
