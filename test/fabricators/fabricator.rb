@@ -32,3 +32,24 @@ Fabricator(:ipnet, :class_name => Antfarm::Models::IpNetwork) do
   layer3_network :fabricator => :l3net
   address        '10.0.0.0/24'
 end
+
+Fabricator(:action, :class_name => Antfarm::Models::Action) do
+  tool        'nmap'
+  description 'network scanner'
+end
+
+Fabricator(:os, :class_name => Antfarm::Models::OperatingSystem) do
+  node             :fabricator => :node
+  certainty_factor 0.5
+end
+
+Fabricator(:service, :class_name => Antfarm::Models::Service) do
+  node             :fabricator => :node
+  certainty_factor 0.5
+end
+
+Fabricator(:conn, :class_name => Antfarm::Models::Connection) do
+  source_layer3_interface :fabricator => :l3iface
+  target_layer3_interface :fabricator => :l3iface
+  port                    502
+end
