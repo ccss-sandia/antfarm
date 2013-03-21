@@ -32,9 +32,11 @@
 module Antfarm
   module Models
     class Layer3Interface < ActiveRecord::Base
-#     has_many   :outbound_traffic, :class_name => 'Traffic', :foreign_key => 'source_layer3_interface_id'
-#     has_many   :inbound_traffic,  :class_name => 'Traffic', :foreign_key => 'target_layer3_interface_id'
-      has_one    :ip_interface,     :inverse_of => :layer3_interface, :dependent => :destroy
+      has_many   :inbound_connections,  :class_name => 'Connection', :foreign_key => 'target_layer3_interface_id'
+      has_many   :outbound_connections, :class_name => 'Connection', :foreign_key => 'source_layer3_interface_id'
+
+      has_one    :ip_interface, :inverse_of => :layer3_interface, :dependent => :destroy
+
       belongs_to :layer2_interface, :inverse_of => :layer3_interfaces
       belongs_to :layer3_network,   :inverse_of => :layer3_interfaces
 
