@@ -31,9 +31,12 @@
 
 module Antfarm
   module Models
-    class Action < ActiveRecord::Base
-      has_many :operating_systems
-      has_many :services
+    class Connection < ActiveRecord::Base
+      belongs_to :source_layer3_interface, :class_name => "Layer3Interface", :foreign_key => "source_layer3_interface_id"
+      belongs_to :target_layer3_interface, :class_name => "Layer3Interface", :foreign_key => "target_layer3_interface_id"
+
+      validates :source_layer3_interface, :presence => true
+      validates :target_layer3_interface, :presence => true
     end
   end
 end

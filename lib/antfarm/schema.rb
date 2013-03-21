@@ -52,4 +52,39 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string 'description'
     t.string 'custom'
   end
+
+  create_table 'actions', :force => true do |t|
+    t.string 'tool'
+    t.string 'description'
+    t.string 'start'
+    t.string 'end'
+    t.string 'custom'
+  end
+
+  create_table 'operating_systems', :force => true do |t|
+    t.integer 'action_id'
+    t.integer 'node_id',          :null => false
+    t.float   'certainty_factor', :null => false
+    t.text    'fingerprint'
+    t.string  'custom'
+  end
+
+  create_table 'services', :force => true do |t|
+    t.integer 'action_id'
+    t.integer 'node_id',          :null => false
+    t.float   'certainty_factor', :null => false
+    t.string  'protocol'
+    t.integer 'port'
+    t.text    'name'
+    t.string  'custom'
+  end
+
+  create_table 'connections', :force => true do |t|
+    t.integer 'source_layer3_interface_id', :null => false
+    t.integer 'target_layer3_interface_id', :null => false
+    t.string  'description'
+    t.integer 'port'
+    t.string  'timestamp'
+    t.string  'custom'
+  end
 end
