@@ -45,6 +45,7 @@ command = 'help' if command.nil? or command.empty?
 Antfarm::Initializer.run do |config|
   config.environment = options[:environment] if options[:environment]
   config.log_level   = options[:log_level]   if options[:log_level]
+  config.outputter   = STDOUT
 end
 
 # Executing command...
@@ -56,8 +57,6 @@ when 'help'
   else
     plugin = ARGV.shift
     if Antfarm.plugins.keys.include?(plugin)
-      Antfarm.plugins[plugin].educate
-
       plugin = Antfarm.plugins[plugin]
 
       # TODO: write parser creator and options helper methods
@@ -70,26 +69,26 @@ when 'help'
 
       parser.educate
     else
-      puts "Unknown plugin '#{plugin}' given. Below is a list of known plugins.\n\n"
+      Antfarm.output "Unknown plugin '#{plugin}' given. Below is a list of known plugins.\n\n"
 
       # TODO: write helper method for listing plugins
       Antfarm.plugins.each do |k,v|
-        puts "#{k} - #{v.info[:desc]}"
+        Antfarm.output "#{k} - #{v.info[:desc]}"
       end
     end
   end
 when 'list'
   if Antfarm.plugins.empty?
-    puts 'No plugins currently loaded.'
+    Antfarm.output 'No plugins currently loaded.'
   else
     Antfarm.plugins.each do |k,v|
-      puts "#{k} - #{v.info[:desc]}"
+      Antfarm.output "#{k} - #{v.info[:desc]}"
     end
   end
 when 'init'
   require 'fileutils'
 
-  puts "Updating database for #{Antfarm.env} environment!\n\n"
+  Antfarm.output "Updating database for #{Antfarm.env} environment!\n\n"
 
   FileUtils.rm_f(Antfarm::Helpers.db_file)
   FileUtils.rm_f(Antfarm::Helpers.log_file)
@@ -107,11 +106,11 @@ else
       end
     end
 
-    puts options
+    Antfarm.output options
 
     plugin.run(options)
   else
-    puts "Invalid command '#{command}' given. See help message below for valid commands.\n\n"
+    Antfarm.output "Invalid command '#{command}' given. See help message below for valid commands.\n\n"
     parser.educate
   end
 end

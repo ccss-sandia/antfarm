@@ -46,8 +46,10 @@ class IpInterfaceTest < TestCase
     Fabricate :l3net, :ip_network_attributes => { :address => '192.168.101.0/29' }
     assert 1, Layer3Network.count
 
-    Fabricate :ipiface, :address => '192.168.101.4/24'
+    iface = Fabricate :ipiface, :address => '192.168.101.4/24'
+
     assert 1, Layer3Network.count
     assert '192.168.101.0/24', Layer3Network.first.ip_network.address
+    assert Layer3Network.first, iface.layer3_interface.layer3_network
   end
 end

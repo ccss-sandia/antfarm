@@ -32,8 +32,8 @@
 module Antfarm
   module Models
     class Node < ActiveRecord::Base
-      has_many :layer2_interfaces, :inverse_of => :node,           :dependent => :destroy
-      has_many :layer3_interfaces, :through => :layer2_interfaces, :dependent => :destroy
+      has_many :layer2_interfaces, :inverse_of => :node, :dependent => :destroy
+      has_many :layer3_interfaces, :through => :layer2_interfaces
       has_many :services
       has_one  :operating_system
 
@@ -75,6 +75,15 @@ module Antfarm
           Antfarm.log :info, 'Node: found existing nodes of given device type.'
           return nodes
         end
+      end
+
+      def merge_from(node)
+        unless node
+          raise AntfarmError, 'nil argument supplied', caller
+        end
+
+        node.layer2_interfaces.each { |iface| iface.node = self }
+        Node.destroy(node.id)
       end
 
       #######

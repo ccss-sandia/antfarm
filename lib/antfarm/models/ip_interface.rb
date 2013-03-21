@@ -32,9 +32,12 @@
 module Antfarm
   module Models
     class IpInterface < ActiveRecord::Base
+      attr_accessor :ip_addr
+
       belongs_to :layer3_interface, :inverse_of => :ip_interface
 
       before_create :create_ip_network
+      after_create  :associate_layer3_network
 
       validates :address,          :presence => true
       validates :layer3_interface, :presence => true
@@ -56,21 +59,24 @@ module Antfarm
       # on anything saved to the database at any time, including a create and an update.
       validates_each :address do |record, attr, value|
         begin
-          addr = Antfarm::IPAddrExt.new(value)
+          record.ip_addr = Antfarm::IPAddrExt.new(value)
+          record.address = record.ip_addr.to_s
 
           # Don't save the interface if it's a loopback address.
-          if addr.loopback_address?
+          if record.ip_addr.loopback_address?
             record.errors.add(:address, 'loopback address not allowed')
           end
 
           # If the address is public and it already exists in the database, don't create
           # a new one but still create a new IP Network just in case the data given for
           # this address includes more detailed information about its network.
-          unless addr.private_address?
-            interface = IpInterface.find_by_address(value)
+          unless record.ip_addr.private_address?
+            interface = IpInterface.find_by_address(record.address)
             if interface
               record.create_ip_network
-              record.errors.add(:address, "#{value} already exists, but a new IP Network was created")
+              message = "#{record.address} already exists, but a new IP Network was created"
+              record.errors.add(:address, message)
+              Antfarm.output message
             end
           end
         rescue ArgumentError
@@ -81,26 +87,16 @@ module Antfarm
       def create_ip_network
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
-        layer3_network = Layer3Network.network_containing(self.address)
-
-        unless layer3_network
-          network         = Antfarm::IPAddrExt.new(self.address)
-          network.netmask = network.netmask << 3 if network == network.network
-          ip_network      = IpNetwork.new(:address => network.to_cidr_string)
-
-          if ip_network.save
-            Antfarm.log :info, 'IpInterface: Created IP Network'
-          else
-            Antfarm.log :warn, 'IpInterface: Errors occured while creating IP Network'
-            ip_network.errors.full_messages do |msg|
-              Antfarm.log :warn, msg
-            end
-          end
-
-          layer3_network = ip_network.layer3_network
+        unless Layer3Network.network_containing(self.address)
+          self.ip_addr.netmask = self.ip_addr.netmask << 3 if self.ip_addr == self.ip_addr.network
+          IpNetwork.create!(:address => self.ip_addr.to_cidr_string)
         end
+      end
 
-        self.layer3_interface.layer3_network = layer3_network
+      def associate_layer3_network
+        if layer3_network = Layer3Network.network_containing(self.address)
+          self.layer3_interface.update_attribute :layer3_network, layer3_network
+        end
       end
     end
   end

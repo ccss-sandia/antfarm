@@ -45,6 +45,9 @@ class Layer3NetworkTest < TestCase
 
     assert_kind_of Antfarm::Models::Layer3Network,
       Layer3Network.network_containing('10.0.0.0/24')
+
+    assert_kind_of Antfarm::Models::Layer3Network,
+      Layer3Network.network_containing('10.0.0.5')
   end
 
   test 'contained_within search fails when no address given' do

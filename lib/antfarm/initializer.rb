@@ -62,6 +62,7 @@ module Antfarm
 
       initialize_database
       initialize_logger
+      initialize_outputter
     end
 
     def init
@@ -159,15 +160,21 @@ module Antfarm
         logger.send(severity,msg)
       end
     end
+
+    def initialize_outputter
+      Antfarm.outputter = @configuration.outputter
+    end
   end
 
   class Configuration
     attr_accessor :environment
     attr_accessor :log_level
+    attr_accessor :outputter
     
     def initialize
       @environment = nil
       @log_level   = nil
+      @outputter   = nil
     end
 
     def default_environment
