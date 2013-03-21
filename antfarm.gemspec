@@ -49,8 +49,8 @@ Gem::Specification.new do |s|
   s.executables  << 'antfarm'
   s.has_rdoc      = false
 
-  s.add_dependency 'activerecord'
-  s.add_dependency 'pg'
-  s.add_dependency 'sqlite3'
-  s.add_dependency 'trollop'
+  s.add_dependency 'activerecord', '= 3.2.12'
+  s.add_dependency 'pg',           '= 0.14.1'
+  s.add_dependency 'sqlite3',      '= 1.3.7'
+  s.add_dependency 'trollop',      '= 2.0'
 end
