@@ -2,4 +2,5 @@
 .ruby-version
 coverage
 Gemfile.lock
+web
 wiki
