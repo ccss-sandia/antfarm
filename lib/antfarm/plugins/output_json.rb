@@ -33,13 +33,13 @@ module Antfarm
 
       Antfarm::Models::Layer3Network.all.each do |network|
         net_indexes[network.id] = nodes.length
-        nodes << { :name => network.id, :group => 'LAN' }
+        nodes << { :name => network.id, :group => 'LAN', :label => network.ip_network.address }
       end
 
       Antfarm::Models::Node.all.each do |node|
         if opts[:include_nodes] or node.device_type == 'Cisco PIX/ASA'
           node_indexes[node.id] = nodes.length
-          nodes << { :name => node.id, :group => node.device_type }
+          nodes << { :name => node.id, :group => node.device_type, :label => node.name }
 
           node.layer3_interfaces.each do |iface|
             links << { :source => node_indexes[node.id], :target => net_indexes[iface.layer3_network.id], :value => 1 }
