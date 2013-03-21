@@ -52,31 +52,18 @@ module Antfarm
 
     def initialize
       @name, @options, @plugin_module = String.new, Array.new, nil
-#     puts 'Anfarm plugin initialized'
-#     puts "Name: #{@name.empty? ? 'not set' : @name}"
-#     puts "Options: #{@options.empty? ? 'none set' : @options}"
     end
 
     def register(plugin)
-      # TODO: best order to do things?
       raise RegistrationException unless plugin.respond_to?(:registered)
       plugin.registered(self)
       raise NameException, plugin if @name.nil? or @name.empty? or Antfarm.plugins.key?(@name)
       extend plugin
       raise RunMethodException unless self.respond_to?(:run)
       # TODO: check options, if set, to ensure required keys and types are set for each
-#     puts "Registered #{plugin.name} as a plugin"
-#     puts "Name: #{@name}"
-#     puts "Options: #{@options.empty? ? 'none set' : @options}"
-      @plugin_module = plugin # TODO: why do we have plugin_module?
+      @plugin_module = plugin # why do we have plugin_module?
       Antfarm.plugins[name] = self
       return self
-    end
-
-    def educate
-      puts @name
-      puts @info
-      puts @options
     end
 
     #######
@@ -84,8 +71,6 @@ module Antfarm
     #######
 
     def check_options(opts)
-      puts 'checking options'
-
       # fail if user provided options but plugin doesn't require any
       if @options.empty? and not opts.empty?
         raise RegisteredOptionsException, @name
@@ -106,13 +91,15 @@ module Antfarm
         end
 
         if opts.key?(option[:name].to_sym)
-          unless opts[option[:name].to_sym].is_a?(option[:type])
-            raise "option '#{option[:name]}' must be of type '#{option[:type]}'"
-          end
+          if option.key?(:type)
+            unless opts[option[:name].to_sym].is_a?(option[:type])
+              raise "option '#{option[:name]}' must be of type '#{option[:type]}'"
+            end
 
-          if option.key?(:accept)
-            unless option[:accept].include?(opts[option[:name].to_sym])
-              raise "option '#{opts[option[:name].to_sym]}' not within acceptable list"
+            if option.key?(:accept)
+              unless option[:accept].include?(opts[option[:name].to_sym])
+                raise "option '#{opts[option[:name].to_sym]}' not within acceptable list"
+              end
             end
           end
         end
