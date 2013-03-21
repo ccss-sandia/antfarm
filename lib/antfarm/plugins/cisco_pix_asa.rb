@@ -42,6 +42,10 @@ module Antfarm
         :desc     => 'Config file to parse (can also be a directory of files)',
         :type     => String,
         :required => true
+      },
+      {
+        :name => 'interfaces_only',
+        :desc => 'Only parse interfaces (ignore defined network objects and hosts)'
       }]
     end
 
@@ -86,11 +90,11 @@ module Antfarm
               hostname = match[1] unless hostname
             elsif match = iface_addr_regexp.match(line)
               interfaces << "#{match[1]}/#{match[2]}"
-            elsif match = net_object_regexp.match(line)
+            elsif !opts[:interfaces_only] and match = net_object_regexp.match(line)
               networks << "#{match[1]}/#{match[2]}"
-            elsif match = net_obj_host_regexp.match(line)
+            elsif !opts[:interfaces_only] and match = net_obj_host_regexp.match(line)
               addresses << match[1]
-            elsif match = route_regexp.match(line)
+            elsif !opts[:interfaces_only] and match = route_regexp.match(line)
               networks  << "#{match[1]}/#{match[2]}" unless match[1] == '0.0.0.0'
               addresses << match[3]
             end
@@ -112,8 +116,6 @@ module Antfarm
           Antfarm.output "  Hostname: #{hostname}"
 
           interfaces.uniq!
-          addresses.uniq!
-          networks.uniq!
 
           node = Antfarm::Models::Node.find_or_create_by_name!(
             :name => hostname, :device_type => 'Cisco PIX/ASA',
@@ -140,37 +142,42 @@ module Antfarm
             end
           end
 
-          addresses.each do |address|
-            Antfarm.output "  Creating IP interface for #{address} based on host or route entry."
+          unless opts[:interfaces_only]
+            addresses.uniq!
+            networks.uniq!
 
-            iface = Antfarm::Models::Layer3Interface.interface_addressed(address)
+            addresses.each do |address|
+              Antfarm.output "  Creating IP interface for #{address} based on host or route entry."
 
-            if iface
-              Antfarm.output "  Record already exists for #{address}."
-            else
-              Antfarm::Models::Node.create!(
-                :certainty_factor => 0.25, :device_type => 'generic host',
-                :layer2_interfaces_attributes => [{ :certainty_factor => 1.0, :media_type => 'Ethernet',
-                  :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
-                    :ip_interface_attributes => { :address => address }
+              iface = Antfarm::Models::Layer3Interface.interface_addressed(address)
+
+              if iface
+                Antfarm.output "  Record already exists for #{address}."
+              else
+                Antfarm::Models::Node.create!(
+                  :certainty_factor => 0.25, :device_type => 'generic host',
+                  :layer2_interfaces_attributes => [{ :certainty_factor => 1.0, :media_type => 'Ethernet',
+                    :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
+                      :ip_interface_attributes => { :address => address }
+                    }]
                   }]
-                }]
-              )
+                )
+              end
             end
-          end
 
-          networks.each do |network|
-            Antfarm.output "  Creating IP network for #{network} based on network object entry."
+            networks.each do |network|
+              Antfarm.output "  Creating IP network for #{network} based on network object entry."
 
-            l3net = Antfarm::Models::Layer3Network.network_addressed(network)
+              l3net = Antfarm::Models::Layer3Network.network_addressed(network)
 
-            if l3net
-              Antfarm.output "  Record already exists for #{network}."
-            else
-              Antfarm::Models::Layer3Network.create!(
-                :certainty_factor => 1.0,
-                :ip_network_attributes => { :address => network }
-              )
+              if l3net
+                Antfarm.output "  Record already exists for #{network}."
+              else
+                Antfarm::Models::Layer3Network.create!(
+                  :certainty_factor => 1.0,
+                  :ip_network_attributes => { :address => network }
+                )
+              end
             end
           end
         end
