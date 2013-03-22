@@ -4,6 +4,18 @@ require 'sinatra/base'
 module Antfarm
   module Web
     class Server < Sinatra::Base
+      get '/' do
+        haml :index
+      end
+
+      get '/new' do
+        haml :new, :layout => !request.xhr?
+      end
+
+      post '/upload' do
+        puts params.inspect
+      end
+
       get '/graph' do
         haml :graph
       end

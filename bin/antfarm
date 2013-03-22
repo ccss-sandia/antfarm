@@ -97,7 +97,7 @@ when 'init'
   load 'antfarm/schema.rb'
 when 'server'
   require 'antfarm/web/app'
-  Antfarm::Web::Server.run! :environment => 'production', :server => 'thin', :port => 8080
+  Antfarm::Web::Server.run! :environment => 'development', :server => 'thin', :port => 8080
 else
   if Antfarm.plugins.keys.include?(command)
     plugin = Antfarm.plugins[command]
