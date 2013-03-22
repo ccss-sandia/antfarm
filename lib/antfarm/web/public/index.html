@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    svg {
+      border: 1px solid black;
+    }
+
+    .node text {
+      pointer-events: none;
+      font: 10px sans-serif;
+      color: black;
+    }
+
+    .link {
+      stroke: #999;
+      stroke-opacity: .6;
+    }
+  </style>
+</head>
+<body>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script>
+    var width  = 1000,
+        height = 750;
+
+    var svg = d3.select('body').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    var force = d3.layout.force()
+        .gravity(.05)
+        .distance(100)
+        .charge(-100)
+        .size([width, height]);
+
+//    var svg = d3.select("body").append("svg")
+//        .attr("width", width)
+//        .attr("height", height)
+//        .attr("pointer-events", "all")
+//        .append("g")
+//        .call(d3.behavior.zoom().on("zoom", redraw));
+
+//    svg.append('rect')
+//    .attr('width', width)
+//    .attr('height', height)
+//    .attr('fill', 'white');
+
+//    function redraw() {
+//      svg.attr(
+//        'transform',
+//        'translate(' + d3.event.translate + ')'
+//        + ' scale(' + d3.event.scale + ')'
+//      );
+//    };
+
+    d3.json("data/networks.json", function(json) {
+      force.nodes(json.nodes)
+           .links(json.links)
+           .start();
+
+      var link = svg.selectAll(".link")
+          .data(json.links)
+          .enter().append("line")
+          .attr("class", "link");
+
+      var node = svg.selectAll(".node")
+          .data(json.nodes)
+          .enter().append("g")
+          .attr("class", "node")
+          .call(force.drag);
+
+      node.append('circle')
+        .attr("r", 5)
+        .style("fill", function(d) {
+          if (d.group == 'LAN') { return 'black'; }
+          else if (d.group == 'Cisco PIX/ASA') { return 'red'; }
+          else { return 'green'; }
+        });
+
+      node.append("text").text(function(d) { return d.text; });
+
+      force.on("tick", function() {
+        link.attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+
+//        node.attr("cx", function(d) { return d.x; })
+//            .attr("cy", function(d) { return d.y; });
+        node.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+      });
+    });
+
+  </script>
+</body>

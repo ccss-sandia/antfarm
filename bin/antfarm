@@ -18,6 +18,7 @@ Usage:
   antfarm <globals> help <plugin>       # Display the application or plugin help message
   antfarm <globals> list                # List the available plugins
   antfarm <globals> init                # Initialize the database for the given environment
+  antfarm <globals> server              # Start the web server for the given environment
   antfarm <globals> <plugin> <options>  # Execute given plugin with given options
 
 Where <globals> are:
@@ -94,6 +95,9 @@ when 'init'
   FileUtils.rm_f(Antfarm::Helpers.log_file)
 
   load 'antfarm/schema.rb'
+when 'server'
+  require 'antfarm/web/app'
+  Antfarm::Web::Server.run! :environment => 'production', :server => 'thin', :port => 8080
 else
   if Antfarm.plugins.keys.include?(command)
     plugin = Antfarm.plugins[command]
