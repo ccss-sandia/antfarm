@@ -13,15 +13,14 @@ module Antfarm
       end
 
       post '/upload' do
-        Antfarm.output "event: upload\ndata: #{params.inspect}\n\n"
+        Antfarm.output ['event: upload', "data: #{params.inspect}"]
         return
       end
 
       get '/upload-stream', :provides => 'text/event-stream' do
         stream :keep_open do |out|
           Antfarm.outputter_callback = lambda do |msg|
-            puts msg
-            out << msg
+            out << msg.join("\n") + "\n\n"
           end
           out.callback { Antfarm.outputter_callback = nil }
         end

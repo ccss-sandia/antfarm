@@ -65,11 +65,11 @@ module Antfarm
   end
 
   def self.output(*msg)
-    @outputter_callback.call(msg.join) if @outputter_callback
+    @outputter_callback.call(msg) if @outputter_callback
   end
 
   def self.log(level, *msg)
-    @logger_callback.call(level, msg.join) if @logger_callback
+    @logger_callback.call(level, msg) if @logger_callback
   end
 
   def self.simplify_interfaces

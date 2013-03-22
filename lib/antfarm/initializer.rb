@@ -157,7 +157,7 @@ module Antfarm
 
       ActiveRecord::Base.logger = logger
       Antfarm.logger_callback = lambda do |severity,msg|
-        logger.send(severity,msg)
+        logger.send(severity,msg.join)
       end
     end
 

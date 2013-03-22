@@ -46,7 +46,7 @@ command = 'help' if command.nil? or command.empty?
 Antfarm::Initializer.run do |config|
   config.environment = options[:environment] if options[:environment]
   config.log_level   = options[:log_level]   if options[:log_level]
-  config.outputter   = lambda { |msg| STDOUT.puts msg }
+  config.outputter   = lambda { |msg| STDOUT.puts msg.join }
 end
 
 # Executing command...
