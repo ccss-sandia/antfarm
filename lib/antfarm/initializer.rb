@@ -162,7 +162,7 @@ module Antfarm
     end
 
     def initialize_outputter
-      Antfarm.outputter = @configuration.outputter
+      Antfarm.outputter_callback = @configuration.outputter
     end
   end
 

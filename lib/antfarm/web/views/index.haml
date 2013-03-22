@@ -1,6 +1,6 @@
 %h1 Welcome!
 
-.upload
+#uploads
 
 %br
 %div
@@ -8,3 +8,12 @@
 
 %br
 %button#upload-all Upload Everything!
+
+#status{style: "border: 1px solid #555; padding: 10px; height: 100px; overflow:scroll;"}
+
+:javascript
+  var es = new EventSource('/upload-stream');
+  es.addEventListener('upload', function(event) {
+    console.log('new upload');
+    $('#status').append(event.data + '<br/>');
+  });
