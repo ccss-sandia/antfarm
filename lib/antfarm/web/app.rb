@@ -13,14 +13,32 @@ module Antfarm
       end
 
       post '/upload' do
-        Antfarm.output ['event: upload', "data: #{params.inspect}"]
+        plugin  = Antfarm.plugin('cisco-pix-asa')
+        options = { file: params[:file][:tempfile].path,
+                    interfaces_only: true }
+
+        plugin.run(options)
         return
       end
 
       get '/upload-stream', :provides => 'text/event-stream' do
         stream :keep_open do |out|
           Antfarm.outputter_callback = lambda do |msg|
-            out << msg.join("\n") + "\n\n"
+            puts msg.inspect
+            if not msg.is_a?(Array)
+              output = "data: #{msg}\n\n"
+              puts output
+              out << output
+            elsif msg.length == 1
+              output = "data: #{msg.first}\n\n"
+              puts output
+              out << output
+            else
+              event = msg.shift
+              output = "event: #{event}\ndata: #{msg.join("\n")}\n\n"
+              puts output
+              out << output
+            end
           end
           out.callback { Antfarm.outputter_callback = nil }
         end
