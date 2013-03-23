@@ -44,4 +44,13 @@ class Layer3InterfaceTest < TestCase
     assert_kind_of Antfarm::Models::Layer3Interface,
       Layer3Interface.interface_addressed('10.0.0.1')
   end
+
+  test 'allows tags to be added via taggable association' do
+    iface = Fabricate :l3iface
+
+    assert iface.tags.count.zero?
+    iface.tags << Tag.new(:name => 'USA')
+    assert iface.tags.count == 1
+    assert iface.tags.first.name == 'USA'
+  end
 end

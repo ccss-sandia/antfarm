@@ -32,8 +32,10 @@
 module Antfarm
   module Models
     class Layer3Network < ActiveRecord::Base
+      has_many :tags, :as => :taggable
       has_many :layer3_interfaces, :inverse_of => :layer3_network
-      has_one  :ip_network,        :inverse_of => :layer3_network, :dependent => :destroy
+
+      has_one :ip_network, :inverse_of => :layer3_network, :dependent => :destroy
 
       accepts_nested_attributes_for :ip_network
 

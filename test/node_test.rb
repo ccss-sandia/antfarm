@@ -62,4 +62,13 @@ class NodeTest < TestCase
 
     assert net == iface.layer3_network
   end
+
+  test 'allows tags to be added via taggable association' do
+    node = Fabricate :node
+
+    assert node.tags.count.zero?
+    node.tags << Tag.new(:name => 'Modbus TCP Master')
+    assert node.tags.count == 1
+    assert node.tags.first.name == 'Modbus TCP Master'
+  end
 end

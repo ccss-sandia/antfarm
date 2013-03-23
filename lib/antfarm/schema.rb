@@ -87,4 +87,10 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string  'timestamp'
     t.string  'custom'
   end
+
+  create_table 'tags', :force => true do |t|
+    t.string  'name',          :null => false
+    t.integer 'taggable_id',   :null => false
+    t.string  'taggable_type', :null => false
+  end
 end

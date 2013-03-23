@@ -44,4 +44,13 @@ class Layer2InterfaceTest < TestCase
     assert_kind_of Antfarm::Models::Layer2Interface,
       Layer2Interface.interface_addressed('AB:00:00:00:00:00')
   end
+
+  test 'allows tags to be added via taggable association' do
+    iface = Fabricate :l2iface
+
+    assert iface.tags.count.zero?
+    iface.tags << Tag.new(:name => 'SEL')
+    assert iface.tags.count == 1
+    assert iface.tags.first.name == 'SEL'
+  end
 end
