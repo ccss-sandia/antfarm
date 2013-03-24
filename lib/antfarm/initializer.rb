@@ -86,6 +86,7 @@ module Antfarm
       require 'antfarm/helpers'
       require 'antfarm/ip_addr_ext'
       require 'antfarm/models'
+      require 'antfarm/oui_parser'
       require 'antfarm/plugin'
       require 'antfarm/version'
     end
