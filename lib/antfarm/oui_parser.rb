@@ -24,6 +24,10 @@ module Antfarm
             addr = data[0]
             name = data[1]
 
+            # TODO: document!
+            next if name == 'IeeeRegi' and addr != '00:1B:C5'
+
+            # TODO: document!
             if match = /\/(\d*)$/.match(addr)
               mask    = match[1].to_i
               bytes   = mask / 8
