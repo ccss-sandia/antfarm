@@ -24,11 +24,12 @@ module Antfarm
             addr = data[0]
             name = data[1]
 
-            # TODO: make this work with non-factors of 8 (i.e. /36)
-            if mask = /\/(\d*)$/.match(addr)
-              bytes  = mask[1].to_i / 8
-              offset = (bytes * 2) + (bytes - 1)
-              addr   = addr[0,offset]
+            if match = /\/(\d*)$/.match(addr)
+              mask    = match[1].to_i
+              bytes   = mask / 8
+              offset  = (bytes * 2) + (bytes - 1)
+              offset += 2 if mask % 8 == 4
+              addr    = addr[0,offset]
             end
 
             addr.gsub!(/[-.]/, ':')
