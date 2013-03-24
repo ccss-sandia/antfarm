@@ -24,6 +24,8 @@ module Antfarm
             addr = data[0]
             name = data[1]
 
+            addr.upcase!
+
             # TODO: document!
             next if name == 'IeeeRegi' and addr != '00:1B:C5'
 
@@ -52,7 +54,7 @@ module Antfarm
 
     def get_name(addr)
       @db.each do |k,v|
-        return v if addr.strip.gsub(/[-.]/, ':').start_with?(k)
+        return v if addr.strip.upcase.gsub(/[-.]/, ':').start_with?(k)
       end
 
       return nil
