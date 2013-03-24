@@ -49,8 +49,10 @@ class Layer2InterfaceTest < TestCase
     iface = Fabricate :l2iface
 
     assert iface.tags.count.zero?
-    iface.tags << Tag.new(:name => 'SEL')
+    iface.tags.create(:name => 'SEL')
     assert iface.tags.count == 1
+    assert iface.tags.first.persisted?
     assert iface.tags.first.name == 'SEL'
+    assert Tag.count == 1
   end
 end
