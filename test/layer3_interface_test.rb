@@ -49,8 +49,10 @@ class Layer3InterfaceTest < TestCase
     iface = Fabricate :l3iface
 
     assert iface.tags.count.zero?
-    iface.tags << Tag.new(:name => 'USA')
+    iface.tags.create(:name => 'USA')
     assert iface.tags.count == 1
+    assert iface.tags.first.persisted?
     assert iface.tags.first.name == 'USA'
+    assert Tag.count == 1
   end
 end

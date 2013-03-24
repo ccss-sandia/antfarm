@@ -89,8 +89,10 @@ class Layer3NetworkTest < TestCase
     net = Fabricate :l3net
 
     assert net.tags.count.zero?
-    net.tags << Tag.new(:name => 'Control Center')
+    net.tags.create(:name => 'Control Center')
     assert net.tags.count == 1
+    assert net.tags.first.persisted?
     assert net.tags.first.name == 'Control Center'
+    assert Tag.count == 1
   end
 end

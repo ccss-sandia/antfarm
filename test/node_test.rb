@@ -67,8 +67,10 @@ class NodeTest < TestCase
     node = Fabricate :node
 
     assert node.tags.count.zero?
-    node.tags << Tag.new(:name => 'Modbus TCP Master')
+    node.tags.create(:name => 'Modbus TCP Master')
     assert node.tags.count == 1
+    assert node.tags.first.persisted?
     assert node.tags.first.name == 'Modbus TCP Master'
+    assert Tag.count == 1
   end
 end
