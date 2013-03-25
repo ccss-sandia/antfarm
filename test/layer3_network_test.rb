@@ -84,4 +84,15 @@ class Layer3NetworkTest < TestCase
     assert '10.0.0.0/23', Layer3Network.network_addressed('10.0.0.0/24')
     assert_nil IpNetwork.find_by_address('10.0.0.0/24')
   end
+
+  test 'allows tags to be added via taggable association' do
+    net = Fabricate :l3net
+
+    assert net.tags.count.zero?
+    net.tags.create(:name => 'Control Center')
+    assert net.tags.count == 1
+    assert net.tags.first.persisted?
+    assert net.tags.first.name == 'Control Center'
+    assert Tag.count == 1
+  end
 end

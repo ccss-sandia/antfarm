@@ -32,10 +32,12 @@
 module Antfarm
   module Models
     class Node < ActiveRecord::Base
+      has_many :tags, :as => :taggable
       has_many :layer2_interfaces, :inverse_of => :node, :dependent => :destroy
       has_many :layer3_interfaces, :through => :layer2_interfaces
       has_many :services
-      has_one  :operating_system
+
+      has_one :operating_system
 
       accepts_nested_attributes_for :layer2_interfaces
 
