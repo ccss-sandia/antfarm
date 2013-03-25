@@ -18,6 +18,7 @@ module Antfarm
       check_options(opts)
 
       require 'packetfu'
+      require 'packetfu/modbus'
 
       if File.readable?(opts[:file])
         PacketFu::PcapFile.read_packets(opts[:file]) do |pkt|
@@ -39,7 +40,7 @@ module Antfarm
               l3iface = l2iface.layer3_interfaces.create! :certainty_factor => 0.75,
                           :ip_interface_attributes => { :address => siaddr }
 
-              if pkt.proto.include?('TCP')
+              if pkt.proto.include?('Modbus')
                 if pkt.tcp_src == 502
                   l3iface.tags.create! :name => 'Modbus TCP Slave'
                 elsif pkt.tcp_dst == 502
@@ -60,7 +61,7 @@ module Antfarm
               l3iface = l2iface.layer3_interfaces.create! :certainty_factor => 0.75,
                           :ip_interface_attributes => { :address => diaddr }
 
-              if pkt.proto.include?('TCP')
+              if pkt.proto.include?('Modbus')
                 if pkt.tcp_src == 502
                   l3iface.tags.create! :name => 'Modbus TCP Master'
                 elsif pkt.tcp_dst == 502
