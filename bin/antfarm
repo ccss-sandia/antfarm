@@ -52,6 +52,19 @@ end
 # Executing command...
 
 case command
+when 'console'
+  require 'pry'
+  include Antfarm::Models
+
+  Pry.config.prompt_name  = 'console'
+  Pry.config.history.file = Antfarm::Helpers.history_file
+
+  Antfarm.plugins.each do |name,plugin|
+    Pry::Commands.block_command name, plugin.info[:desc] do |opts|
+    end
+  end
+
+  Antfarm.pry
 when 'help'
   if ARGV.empty?
     parser.educate

@@ -53,6 +53,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'haml',         '= 3.1.7'
   s.add_dependency 'packetfu',     '= 1.1.6'
   s.add_dependency 'pg',           '= 0.14.1'
+  s.add_dependency 'pry',          '= 0.9.12'
   s.add_dependency 'sinatra',      '= 1.3.3'
   s.add_dependency 'sqlite3',      '= 1.3.7'
   s.add_dependency 'thin',         '= 1.5.0'
