@@ -32,4 +32,3 @@
 class PrivateNetwork < ActiveRecord::Base
   has_many :ip_networks, :inverse_of => :private_network
 end
-

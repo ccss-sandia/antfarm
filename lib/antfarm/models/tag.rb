@@ -29,45 +29,6 @@
 #                                                                              #
 ################################################################################
 
-module Antfarm
-  module Models
-    class Layer2Interface < ActiveRecord::Base
-      has_many :tags, :as => :taggable
-      has_many :layer3_interfaces, :inverse_of => :layer2_interface, :dependent => :destroy
-
-      has_one :ethernet_interface, :inverse_of => :layer2_interface, :dependent => :destroy
-
-      belongs_to :node, :inverse_of => :layer2_interfaces
-
-      accepts_nested_attributes_for :layer3_interfaces
-      accepts_nested_attributes_for :ethernet_interface
-
-      before_save :clamp_certainty_factor
-
-      validates :node,             :presence => true
-      validates :certainty_factor, :presence => true
-
-      # Find and return the layer 2 interface
-      # with the given ethernet address.
-      def self.interface_addressed(mac_addr_str)
-        unless mac_addr_str
-          raise AntfarmError, 'nil argument supplied', caller
-        end
-
-        if eth_if = EthernetInterface.find_by_address(mac_addr_str)
-          return eth_if.layer2_interface
-        else
-          return nil
-        end
-      end
-
-      #######
-      private
-      #######
-
-      def clamp_certainty_factor
-        self.certainty_factor = Antfarm.clamp(self.certainty_factor)
-      end
-    end
-  end
+class Tag < ActiveRecord::Base
+  belongs_to :taggable, :polymorphic => true
 end
