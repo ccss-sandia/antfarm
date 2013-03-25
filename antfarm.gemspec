@@ -50,6 +50,7 @@ Gem::Specification.new do |s|
   s.has_rdoc      = false
 
   s.add_dependency 'activerecord', '= 3.2.12'
+  s.add_dependency 'packetfu',     '= 1.1.6'
   s.add_dependency 'pg',           '= 0.14.1'
   s.add_dependency 'sqlite3',      '= 1.3.7'
   s.add_dependency 'trollop',      '= 2.0'
