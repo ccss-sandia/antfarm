@@ -39,6 +39,7 @@ module Antfarm
 
       before_create :set_private_address
       after_create  :merge_layer3_networks
+      after_create  :publish_info
 
       validates :address,        :presence => true
       validates :layer3_network, :presence => true
@@ -102,6 +103,11 @@ module Antfarm
         # Merge any existing networks already in the database that are
         # sub_networks of this new network.
         Layer3Network.merge(self.layer3_network, 0.80)
+      end
+
+      def publish_info
+        data = { :node => { :name => "net:#{self.id}", :group => 'LAN', :label => self.address } }
+        Antfarm.output 'create', JSON.generate(data)
       end
     end
   end
