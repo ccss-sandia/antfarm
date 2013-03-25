@@ -44,13 +44,13 @@ module Antfarm
   # Mainly used as a buffer against floating point round-off errors.
   CF_VARIANCE      =  0.0001
 
-  @user_dir        = nil
-  @outputter       = nil
-  @logger_callback = nil
+  @user_dir           = nil
+  @outputter_callback = nil
+  @logger_callback    = nil
 
   class << self
     attr_accessor :logger_callback
-    attr_accessor :outputter
+    attr_accessor :outputter_callback
     attr_accessor :user_dir
   end
 
@@ -64,12 +64,12 @@ module Antfarm
     end
   end
 
-  def self.output(message)
-    @outputter.puts(message) unless @outputter.nil?
+  def self.output(*msg)
+    @outputter_callback.call(msg) if @outputter_callback
   end
 
   def self.log(level, *msg)
-    @logger_callback.call(level, msg.join) if @logger_callback
+    @logger_callback.call(level, msg) if @logger_callback
   end
 
   def self.simplify_interfaces

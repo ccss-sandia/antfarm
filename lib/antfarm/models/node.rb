@@ -43,7 +43,8 @@ module Antfarm
 
       validates :certainty_factor, :presence => true
 
-      before_save :clamp_certainty_factor
+      before_save  :clamp_certainty_factor
+      after_create :publish_info
 
       # Find and return nodes found with the given name.
       def self.node_named(name)
@@ -94,6 +95,11 @@ module Antfarm
 
       def clamp_certainty_factor
         self.certainty_factor = Antfarm.clamp(self.certainty_factor)
+      end
+
+      def publish_info
+        data = { :node => { :name => "node:#{self.id}", :group => self.device_type, :label => self.name } }
+        Antfarm.output 'create', JSON.generate(data)
       end
     end
   end
