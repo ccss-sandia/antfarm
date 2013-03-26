@@ -88,7 +88,7 @@ module Antfarm
       def create_ip_network
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
-        unless Layer3Network.network_containing(self.address)
+        unless Layer3Network.network_containing(self.ip_addr.to_cidr_string)
           self.ip_addr.netmask = self.ip_addr.netmask << 3 if self.ip_addr == self.ip_addr.network
           IpNetwork.create!(:address => self.ip_addr.to_cidr_string)
         end
