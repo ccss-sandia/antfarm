@@ -32,9 +32,9 @@
 module Antfarm
   module CiscoPixAsa
     def self.registered(plugin)
-      plugin.name = 'cisco-pix-asa'
+      plugin.name = 'cisco-ios'
       plugin.info = {
-        :desc   => 'Configuration parser for Cisco PIX and ASA IOS versions 6 and 7',
+        :desc   => 'Configuration parser for Cisco IOS',
         :author => 'Bryan T. Richardson'
       }
       plugin.options = [{
@@ -67,7 +67,7 @@ module Antfarm
       files.each do |file|
         Antfarm.output "Parsing config file #{file}"
 
-        ios_version_regexp  = /^(PIX|ASA) Version ((\d+)\.(\d+)\((\d+)\))/
+        ios_version_regexp  = /^(\A.*|IOS|PIX|ASA)[V|v]ersion ((\d+)\.(\d+)(\((\d+)\))?)/
         hostname_regexp     = /^hostname (\S+)/
         ipv4_regexp         = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
         iface_addr_regexp   = /ip address #{ipv4_regexp} #{ipv4_regexp}/ 
