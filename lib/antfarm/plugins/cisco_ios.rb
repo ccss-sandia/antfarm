@@ -30,7 +30,7 @@
 ################################################################################
 
 module Antfarm
-  module CiscoPixAsa
+  module CiscoIOS
     def self.registered(plugin)
       plugin.name = 'cisco-ios'
       plugin.info = {
@@ -186,4 +186,4 @@ module Antfarm
   end
 end
 
-Antfarm.register(Antfarm::CiscoPixAsa)
+Antfarm.register(Antfarm::CiscoIOS)
