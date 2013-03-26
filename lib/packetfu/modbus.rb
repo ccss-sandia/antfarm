@@ -84,23 +84,23 @@ module PacketFu
     attr_accessor :eth_header, :ip_header, :tcp_header, :modbus_header
 
     def self.can_parse?(str)
-      return false unless str.size >= 54
+      return false unless str.size >= 61 # 54 + 7 (ETH, IP, TCP, MB ADU)
       return false unless EthPacket.can_parse?(str)
       return false unless IPPacket.can_parse?(str)
       return false unless TCPPacket.can_parse?(str)
 
-      ethlen        = 14
-      tcplen_offset = 12
+      packet = TCPPacket.new.read(str)
+      body   = packet.tcp_header.body
 
-      iplen  = StructFu::Int8.new.read(str[ethlen,1].unpack('C').first.to_i & 0x0F).value * 4
-      tcplen = PacketFu::TcpHlen.new.read(str[ethlen + iplen + tcplen_offset,1]).to_i * 4
-      sport  = StructFu::Int16.new.read(str[ethlen + iplen,2]).value
-      dport  = StructFu::Int16.new.read(str[ethlen + iplen + 2,2]).value
+      if body.size > 7
+        mb_pid = StructFu::Int16.new.read(body[2,2]).value
+        mb_len = StructFu::Int16.new.read(body[4,2]).value
 
-      mb_offset = ethlen + iplen + tcplen
-      if str.size > mb_offset + 7
-        mb_pid = StructFu::Int16.new.read(str[mb_offset + 2,2]).value
-        return true if (sport == 502 or dport == 502) and mb_pid.zero?
+        if packet.tcp_src == 502 or packet.tcp_dst == 502
+          if mb_pid.zero? and mb_len <= 250
+            return true
+          end
+        end
       end
 
       return false
