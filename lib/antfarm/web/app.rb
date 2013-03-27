@@ -1,3 +1,4 @@
+require 'csv'
 require 'haml'
 require 'sinatra/base'
 
@@ -12,10 +13,44 @@ module Antfarm
         haml :new, :layout => !request.xhr?
       end
 
+      get '/csv', :provides => 'text/csv' do
+        CSV.generate do |csv|
+          csv << ['name','color']
+
+          Antfarm::Models::IpInterface.all.each do |iface|
+            color = "%06x" % (rand * 0xFFFFFF)
+            csv << [iface.address,color]
+          end
+        end
+      end
+
+      get '/json', :provides => 'text/json' do
+        matrix = Array.new
+        ifaces = Antfarm::Models::IpInterface.all.map(&:id)
+        total  = Antfarm::Models::Connection.count
+
+        ifaces.each do |src|
+          data = Array.new
+
+          ifaces.each do |dst|
+            if src == dst
+              data << 0
+            else
+              data << Antfarm::Models::Connection.where(:src_id => src, :dst_id => dst).count / total.to_f
+            end
+          end
+
+          matrix << data
+        end
+
+        JSON.generate(matrix)
+      end
+
+
       post '/upload' do
         plugin  = Antfarm.plugin('cisco-pix-asa')
         options = { file: params[:file][:tempfile].path,
-                    interfaces_only: true }
+          interfaces_only: true }
 
         plugin.run(options)
         return
