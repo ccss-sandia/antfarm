@@ -32,11 +32,11 @@
 module Antfarm
   module Models
     class Connection < ActiveRecord::Base
-      belongs_to :source_layer3_interface, :class_name => "Layer3Interface", :foreign_key => "source_layer3_interface_id"
-      belongs_to :target_layer3_interface, :class_name => "Layer3Interface", :foreign_key => "target_layer3_interface_id"
+      belongs_to :src, :class_name => "Layer3Interface" #, :foreign_key => "src_id"
+      belongs_to :dst, :class_name => "Layer3Interface" #, :foreign_key => "dst_id"
 
-      validates :source_layer3_interface, :presence => true
-      validates :target_layer3_interface, :presence => true
+      validates :src, :presence => true
+      validates :dst, :presence => true
     end
   end
 end
