@@ -114,7 +114,8 @@ ActiveRecord::Schema.define(:version => 7) do
     t.integer 'src_id', :null => false
     t.integer 'dst_id', :null => false
     t.string  'description'
-    t.integer 'port'
+    t.integer 'src_port'
+    t.integer 'dst_port'
     t.string  'timestamp'
     t.string  'custom'
   end

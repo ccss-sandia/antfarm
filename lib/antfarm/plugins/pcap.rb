@@ -119,7 +119,8 @@ module Antfarm
             end
 
             Antfarm::Models::Connection.create! :src => src, :dst => dst,
-              :description => pkt.proto.last, :port => pkt.proto.include?('TCP') ? pkt.tcp_dst : nil
+              :description => pkt.proto.last, :src_port => pkt.proto.include?('TCP') ? pkt.tcp_src : nil,
+              :dst_port => pkt.proto.include?('TCP') ? pkt.tcp_dst : nil
           end
         end
       else
