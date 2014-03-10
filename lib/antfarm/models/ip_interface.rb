@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -38,7 +38,7 @@ module Antfarm
 
       after_create :create_ip_network
       after_create :associate_layer3_network
-      after_create :publish_info
+#     after_create :publish_info
 
       validates :address,          :presence => true
       validates :layer3_interface, :presence => true
@@ -77,7 +77,7 @@ module Antfarm
               record.create_ip_network
               message = "#{record.address} already exists, but a new IP Network was created"
               record.errors.add(:address, message)
-              Antfarm.output message
+              Antfarm.log :info, message
             end
           end
         rescue ArgumentError
@@ -89,8 +89,18 @@ module Antfarm
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
         unless Layer3Network.network_containing(self.ip_addr.to_cidr_string)
-          self.ip_addr.netmask = self.ip_addr.netmask << 3 if self.ip_addr == self.ip_addr.network
-          IpNetwork.create!(:address => self.ip_addr.to_cidr_string)
+          if self.ip_addr == self.ip_addr.network # no subnet data provided
+            self.ip_addr.netmask = self.ip_addr.netmask << 2 # make it a /30
+            certainty_factor     = Antfarm::CF_LIKELY_FALSE
+          else
+            certainty_factor = Antfarm::CF_PROVEN_TRUE
+          end
+
+          Layer3Network.create!(
+            :certainty_factor => certainty_factor,
+            :protocol => 'IP',
+            :ip_network_attributes => { :address => self.ip_addr.to_cidr_string }
+          )
         end
       end
 
