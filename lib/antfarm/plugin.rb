@@ -93,7 +93,7 @@ module Antfarm
         if opts.key?(option[:name].to_sym)
           if option.key?(:type)
             unless opts[option[:name].to_sym].is_a?(option[:type])
-              raise "option '#{option[:name]}' must be of type '#{option[:type]}'"
+              raise "option '#{option[:name]}' must be of type '#{option[:type]}'" if option[:required]
             end
 
             if option.key?(:accept)
