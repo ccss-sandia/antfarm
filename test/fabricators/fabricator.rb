@@ -28,7 +28,7 @@ Fabricator(:l3net, :class_name => Antfarm::Models::Layer3Network) do
   certainty_factor 0.5
 end
 
-Fabricator(:ipnet, :class_name => Antfarm::Models::IpNetwork) do
+Fabricator(:ipnet, :class_name => Antfarm::Models::IPNetwork) do
   layer3_network :fabricator => :l3net
   address        '10.0.0.0/24'
 end
@@ -49,7 +49,7 @@ Fabricator(:service, :class_name => Antfarm::Models::Service) do
 end
 
 Fabricator(:conn, :class_name => Antfarm::Models::Connection) do
-  source_layer3_interface :fabricator => :l3iface
-  target_layer3_interface :fabricator => :l3iface
-  port                    502
+  src      :fabricator => :l3iface
+  dst      :fabricator => :l3iface
+  dst_port 502
 end
