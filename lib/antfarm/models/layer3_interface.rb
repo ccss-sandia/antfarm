@@ -36,7 +36,7 @@ module Antfarm
       has_many :inbound_connections,  :class_name => 'Connection', :foreign_key => 'target_layer3_interface_id'
       has_many :outbound_connections, :class_name => 'Connection', :foreign_key => 'source_layer3_interface_id'
 
-      has_one :ip_interface, :inverse_of => :layer3_interface, :dependent => :destroy
+      has_one :ip_interface, :class_name => 'IPInterface', :inverse_of => :layer3_interface, :dependent => :destroy
 
       belongs_to :layer2_interface, :inverse_of => :layer3_interfaces
       belongs_to :layer3_network,   :inverse_of => :layer3_interfaces
@@ -55,7 +55,7 @@ module Antfarm
           raise AntfarmError, 'nil argument supplied', caller
         end
 
-        if ip_if = IpInterface.find_by_address(ip_addr_str)
+        if ip_if = IPInterface.find_by_address(ip_addr_str)
           return ip_if.layer3_interface
         else
           return nil

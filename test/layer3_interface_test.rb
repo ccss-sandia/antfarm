@@ -30,7 +30,7 @@ class Layer3InterfaceTest < TestCase
 
   test 'creates IP iface using attributes' do
     iface = Fabricate :l3iface, :ip_interface_attributes => { :address => '10.0.0.1' }
-    assert_kind_of Antfarm::Models::IpInterface, iface.ip_interface
+    assert_kind_of Antfarm::Models::IPInterface, iface.ip_interface
     assert_equal   '10.0.0.1', iface.ip_interface.address
   end
 

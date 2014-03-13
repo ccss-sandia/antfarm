@@ -62,7 +62,7 @@ module Antfarm
             src = nil
             dst = nil
 
-            if s_ip_iface = Antfarm::Models::IpInterface.find_by_address(siaddr)
+            if s_ip_iface = Antfarm::Models::IPInterface.find_by_address(siaddr)
               l2iface = s_ip_iface.layer3_interface.layer2_interface
 
               if l2iface.ethernet_interface
@@ -85,7 +85,7 @@ module Antfarm
                       :ip_interface_attributes => { :address => siaddr }
             end
 
-            if d_ip_iface = Antfarm::Models::IpInterface.find_by_address(diaddr)
+            if d_ip_iface = Antfarm::Models::IPInterface.find_by_address(diaddr)
               l2iface = d_ip_iface.layer3_interface.layer2_interface
 
               if l2iface.ethernet_interface

@@ -31,7 +31,7 @@
 
 module Antfarm
   module Models
-    class IpInterface < ActiveRecord::Base
+    class IPInterface < ActiveRecord::Base
       attr_accessor :ip_addr
 
       belongs_to :layer3_interface, :inverse_of => :ip_interface
@@ -72,7 +72,7 @@ module Antfarm
           # a new one but still create a new IP Network just in case the data given for
           # this address includes more detailed information about its network.
           unless record.ip_addr.private_address?
-            interface = IpInterface.find_by_address(record.address)
+            interface = IPInterface.find_by_address(record.address)
             if interface
               record.create_ip_network
               message = "#{record.address} already exists, but a new IP Network was created"
