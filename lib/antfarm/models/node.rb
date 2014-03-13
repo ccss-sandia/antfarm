@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -33,13 +33,13 @@ module Antfarm
   module Models
     class Node < ActiveRecord::Base
       has_many :tags, :as => :taggable
-      has_many :layer2_interfaces, :inverse_of => :node, :dependent => :destroy
-      has_many :layer3_interfaces, :through => :layer2_interfaces
+      has_many :l2_ifs,            :inverse_of => :node, :dependent => :destroy
+      has_many :layer3_interfaces, :through => :l2_ifs
       has_many :services
 
       has_one :operating_system
 
-      accepts_nested_attributes_for :layer2_interfaces
+      accepts_nested_attributes_for :l2_ifs
 
       validates :certainty_factor, :presence => true
 
@@ -85,7 +85,7 @@ module Antfarm
           raise AntfarmError, 'nil argument supplied', caller
         end
 
-        node.layer2_interfaces.each { |iface| iface.node = self }
+        node.l2_ifs.each { |iface| iface.node = self }
         Node.destroy(node.id)
       end
 

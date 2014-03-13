@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string 'custom'
   end
 
-  create_table 'layer2_interfaces', :force => true do |t|
+  create_table 'l2_ifs', :force => true do |t|
     t.integer 'node_id',          :null => false
     t.float   'certainty_factor', :null => false
     t.string  'media_type'
@@ -45,15 +45,15 @@ ActiveRecord::Schema.define(:version => 7) do
   end
 
   create_table 'ethernet_interfaces', :force => true do |t|
-    t.integer 'layer2_interface_id', :null => false
-    t.string  'address',             :null => false
+    t.integer 'l2_if_id', :null => false
+    t.string  'address',  :null => false
     t.string  'custom'
   end
 
   create_table 'layer3_interfaces', :force => true do |t|
-    t.integer 'layer2_interface_id', :null => false
+    t.integer 'l2_if_id',         :null => false
     t.integer 'layer3_network_id'
-    t.float   'certainty_factor',    :null => false
+    t.float   'certainty_factor', :null => false
     t.string  'protocol'
     t.string  'custom'
   end

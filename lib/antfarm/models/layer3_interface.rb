@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -38,12 +38,12 @@ module Antfarm
 
       has_one :ip_interface, :class_name => 'IPInterface', :inverse_of => :layer3_interface, :dependent => :destroy
 
-      belongs_to :layer2_interface, :inverse_of => :layer3_interfaces
-      belongs_to :layer3_network,   :inverse_of => :layer3_interfaces
+      belongs_to :l2_if,          :inverse_of => :layer3_interfaces
+      belongs_to :layer3_network, :inverse_of => :layer3_interfaces
 
       accepts_nested_attributes_for :ip_interface
 
-      validates :layer2_interface, :presence => true
+      validates :l2_if,            :presence => true
       validates :certainty_factor, :presence => true
 
       before_save :clamp_certainty_factor

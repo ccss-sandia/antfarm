@@ -4,18 +4,18 @@ Fabricator(:node, :class_name => Antfarm::Models::Node) do
   device_type      'RTU'
 end
 
-Fabricator(:l2iface, :class_name => Antfarm::Models::Layer2Interface) do
+Fabricator(:l2iface, :class_name => Antfarm::Models::L2If) do
   node
   certainty_factor 0.5
 end
 
 Fabricator(:ethiface, :class_name => Antfarm::Models::EthernetInterface) do
-  layer2_interface :fabricator => :l2iface
-  address          '00:00:00:00:00:01'
+  l2_if   :fabricator => :l2iface
+  address '00:00:00:00:00:01'
 end
 
 Fabricator(:l3iface, :class_name => Antfarm::Models::Layer3Interface) do
-  layer2_interface :fabricator => :l2iface
+  l2_if            :fabricator => :l2iface
   certainty_factor 0.5
 end
 

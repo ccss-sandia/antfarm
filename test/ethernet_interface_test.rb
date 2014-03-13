@@ -5,10 +5,10 @@ class EthernetInterfaceTest < TestCase
 
   test 'fails with no layer 2 interface' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      Fabricate :ethiface, :layer2_interface => nil
+      Fabricate :ethiface, :l2_if => nil
     end
 
-    assert !Fabricate.build(:ethiface, :layer2_interface => nil).valid?
+    assert !Fabricate.build(:ethiface, :l2_if => nil).valid?
   end
 
   test 'fails with no address' do

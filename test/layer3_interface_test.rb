@@ -5,10 +5,10 @@ class Layer3InterfaceTest < TestCase
 
   test 'fails with no layer 2 interface' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      Fabricate :l3iface, :layer2_interface => nil
+      Fabricate :l3iface, :l2_if => nil
     end
 
-    assert !Fabricate.build(:l3iface, :layer2_interface => nil).valid?
+    assert !Fabricate.build(:l3iface, :l2_if => nil).valid?
   end
 
   test 'fails with no certainty factor' do

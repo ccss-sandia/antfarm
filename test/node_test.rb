@@ -47,7 +47,7 @@ class NodeTest < TestCase
 
   test 'creates full stack of records using attributes' do
     Fabricate :node,
-      :layer2_interfaces_attributes => [{
+      :l2_ifs_attributes => [{
         :certainty_factor => 1.0, :media_type => 'Ethernet',
         :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
           :ip_interface_attributes => { :address => '192.168.101.5/24' }
