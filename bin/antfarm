@@ -30,6 +30,9 @@ Where <globals> are:
   opt :log_level,
       "Level to log ANTFARM messages (defaults to 'warn')",
       :type => String
+  opt :prefix,
+      "Default subnet prefix to use if an IP address doesn't specify it (defaults to 30)",
+      :type => Integer
 
   stop_on COMMANDS
 end
@@ -46,6 +49,7 @@ command = 'help' if command.nil? or command.empty?
 Antfarm::Initializer.run do |config|
   config.environment = options[:environment] if options[:environment]
   config.log_level   = options[:log_level]   if options[:log_level]
+  config.prefix      = options[:prefix]      if options[:prefix]
   config.outputter   = lambda { |msg| STDOUT.puts msg.join }
 end
 

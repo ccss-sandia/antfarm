@@ -89,9 +89,15 @@ module Antfarm
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
         unless Layer3Network.network_containing(self.ip_addr.to_cidr_string)
-          if self.ip_addr == self.ip_addr.network # no subnet data provided
-            self.ip_addr.netmask = self.ip_addr.netmask << 2 # make it a /30
-            certainty_factor     = Antfarm::CF_LIKELY_FALSE
+          if self.ip_addr.prefix == 32 # no subnet data provided
+            self.ip_addr.prefix = Antfarm.config.prefix # defaults to /30
+
+            # address for this interface shouldn't be a network address...
+            if self.ip_addr == self.ip_addr.network
+              self.ip_addr.prefix = Antfarm.config.prefix - 1
+            end
+
+            certainty_factor = Antfarm::CF_LIKELY_FALSE
           else
             certainty_factor = Antfarm::CF_PROVEN_TRUE
           end
@@ -115,6 +121,21 @@ module Antfarm
           net  = self.layer3_interface.layer3_network.ip_network
           data = { :link => { :source => "node:#{node.id}", :target => "net:#{net.id}", :value => 1 } }
           Antfarm.output 'create', JSON.generate(data)
+      end
+
+      # Allow prefix provided to be nil just in case this
+      # call is part of a loop that may or may not need
+      # to change the prefix. See the `traceroute` plugin
+      # for an example use case such as this.
+      def self.execute_with_prefix(prefix = nil, &block)
+        if prefix.nil?
+          yield
+        else
+          original_prefix = Antfarm.config.prefix
+          Antfarm.config.prefix = prefix.to_i
+          yield
+          Antfarm.config.prefix = original_prefix
+        end
       end
     end
   end
