@@ -44,7 +44,7 @@ module Antfarm
       validates :certainty_factor, :presence => true
 
       before_save  :clamp_certainty_factor
-      after_create :publish_info
+#     after_create :publish_info
 
       # Find and return nodes found with the given name.
       def self.node_named(name)
@@ -87,6 +87,19 @@ module Antfarm
 
         node.layer2_interfaces.each { |iface| iface.node = self }
         Node.destroy(node.id)
+      end
+
+      def interfaces_in_network(network)
+        interfaces = Array.new
+
+        self.layer3_interfaces.each do |iface|
+          addr = Antfarm::IPAddrExt.new(iface.ip_interface.address)
+          if network.include?(addr)
+            interfaces << iface
+          end
+        end
+
+        return interfaces
       end
 
       #######
