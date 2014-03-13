@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -31,7 +31,7 @@
 
 module Antfarm
   module Models
-    class IpNetwork < ActiveRecord::Base
+    class IPNetwork < ActiveRecord::Base
       belongs_to :layer3_network,  :inverse_of => :ip_network
       belongs_to :private_network, :inverse_of => :ip_networks
 
@@ -39,7 +39,7 @@ module Antfarm
 
       before_create :set_private_address
       after_create  :merge_layer3_networks
-      after_create  :publish_info
+#     after_create  :publish_info
 
       validates :address,        :presence => true
       validates :layer3_network, :presence => true
@@ -87,9 +87,9 @@ module Antfarm
         unless self.layer3_network
           layer3_network = Layer3Network.new :certainty_factor => 0.75
           if layer3_network.save
-            Antfarm.log :info, 'IpNetwork: Created Layer 3 Network'
+            Antfarm.log :info, 'IPNetwork: Created Layer 3 Network'
           else
-            Antfarm.log :warn, 'IpNetwork: Errors occured while creating Layer 3 Network'
+            Antfarm.log :warn, 'IPNetwork: Errors occured while creating Layer 3 Network'
             layer3_network.errors.full_messages do |msg|
               Antfarm.log :warn, msg
             end

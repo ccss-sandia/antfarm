@@ -35,7 +35,7 @@ module Antfarm
       has_many :tags, :as => :taggable
       has_many :layer3_interfaces, :inverse_of => :layer3_network
 
-      has_one :ip_network, :inverse_of => :layer3_network, :dependent => :destroy
+      has_one :ip_network, :class_name => 'IPNetwork', :inverse_of => :layer3_network, :dependent => :destroy
 
       accepts_nested_attributes_for :ip_network
 
@@ -46,14 +46,14 @@ module Antfarm
       # Take the given network and merge with it
       # any sub_networks of the given network.
       def self.merge(network, merge_certainty_factor = Antfarm::CF_PROVEN_TRUE)
-        unless network 
+        unless network
           raise AntfarmError, "nil argument supplied", caller
         end
 
-        Antfarm.output "  Merge called for #{network.ip_network.address}"
+        Antfarm.log :info, "Merge called for #{network.ip_network.address}"
 
         for sub_network in self.networks_contained_within(network.ip_network.address)
-          unless sub_network == network 
+          unless sub_network == network
             unless merge_certainty_factor
               merge_certainty_factor = Antfarm::CF_LACK_OF_PROOF
             end
@@ -69,7 +69,7 @@ module Antfarm
 #           network.layer3_interfaces.uniq!
 
             # TODO: update network's certainty factor using sub_network's certainty factor.
-            
+
             network.save!
 
             # Because of :dependent => :destroy above, calling destroy
@@ -97,7 +97,7 @@ module Antfarm
         # before a Layer3Network is created.
         network = Antfarm::IPAddrExt.new(ip_net_str)
 
-        ip_nets = IpNetwork.find(:all)
+        ip_nets = IPNetwork.find(:all)
         for ip_net in ip_nets
           if Antfarm::IPAddrExt.new(ip_net.address).network_in_network?(network)
             return Layer3Network.find(ip_net.id)
@@ -118,7 +118,7 @@ module Antfarm
         network = Antfarm::IPAddrExt.new(ip_net_str)
         sub_networks = Array.new
 
-        ip_nets = IpNetwork.find(:all)
+        ip_nets = IPNetwork.find(:all)
         for ip_net in ip_nets
           sub_networks << Layer3Network.find(ip_net.id) if network.network_in_network?(ip_net.address)
         end
