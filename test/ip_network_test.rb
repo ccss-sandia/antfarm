@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class IpNetworkTest < TestCase
+class IPNetworkTest < TestCase
   include Antfarm::Models
 
   test 'layer 3 network created when not provided' do

@@ -22,7 +22,7 @@ class Layer3NetworkTest < TestCase
 
   test 'creates IP network using attributes' do
     net = Fabricate :l3net, :ip_network_attributes => { :address => '10.0.0.0/24' }
-    assert_kind_of Antfarm::Models::IpNetwork, net.ip_network
+    assert_kind_of Antfarm::Models::IPNetwork, net.ip_network
     assert_equal   '10.0.0.0/24', net.ip_network.address
   end
 
@@ -75,14 +75,14 @@ class Layer3NetworkTest < TestCase
     iface = Fabricate :l3iface, :ip_interface_attributes => { :address => '10.0.0.1' },
                                 :layer3_network          => net2
 
-    assert net2.ip_network, IpNetwork.find_by_address('10.0.0.0/24')
+    assert net2.ip_network, IPNetwork.find_by_address('10.0.0.0/24')
 
     assert net2, iface.layer3_network
     Layer3Network.merge(net1)
     assert net1, iface.layer3_network
 
     assert '10.0.0.0/23', Layer3Network.network_addressed('10.0.0.0/24')
-    assert_nil IpNetwork.find_by_address('10.0.0.0/24')
+    assert_nil IPNetwork.find_by_address('10.0.0.0/24')
   end
 
   test 'allows tags to be added via taggable association' do
