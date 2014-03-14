@@ -12,7 +12,7 @@ antfarm(1) -- passive network mapping tool
 ANTFARM (Advanced Network Toolkit For Assessments and Remote Mapping) is a
 passive network mapping application that utilizes output from existing network
 examination tools to populate its OSI-modeled database. This data can then be
-used to form a ‘picture’ of the network being analyzed.
+used to form a 'picture' of the network being analyzed.
 
 ANTFARM can also be described as a data fusion tool that does not directly
 interact with the network. The analyst can use a variety of passive or active
@@ -39,7 +39,7 @@ Custom plugins created by users will be made available to the ANTFARM
 application when they are placed in the '.antfarm/plugins' directory.
 
 Each plugin developed for ANTFARM specifies the input and/or output requirements
-when being used. To see what inputs are required for a particular plugin, type:
+when being used. To see what inputs are required for a particular plugin, run:
 
     $ antfarm help <plugin>
 
@@ -48,7 +48,7 @@ when being used. To see what inputs are required for a particular plugin, type:
 ANTFARM's default method of operation is to parse input data or generate output
 data using a specified plugin. The plugin to use is specified on the command
 line as a sub-command, and each plugin developed specifies it's own required
-arguments. Global ANTFARM commands include:
+arguments. Global ANTFARM options include:
 
   * `-e`, `--env` <env>:
     The ANTFARM environment to use when executing the given sub-command. The
@@ -80,6 +80,10 @@ Display the default help message for ANTFARM:
     or
 
     $ antfarm help
+
+    or just
+
+    $ antfarm
 
 List all the plugins currently available in ANTFARM:
 
