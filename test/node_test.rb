@@ -50,7 +50,7 @@ class NodeTest < TestCase
       :l2_ifs_attributes => [{
         :certainty_factor => 1.0, :media_type => 'Ethernet',
         :l3_ifs_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
-          :ip_interface_attributes => { :address => '192.168.101.5/24' }
+          :ip_if_attributes => { :address => '192.168.101.5/24' }
         }]
       }]
 

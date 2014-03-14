@@ -1,7 +1,7 @@
 require 'antfarm/models/action'
 require 'antfarm/models/connection'
 require 'antfarm/models/eth_if'
-require 'antfarm/models/ip_interface'
+require 'antfarm/models/ip_if'
 require 'antfarm/models/ip_network'
 require 'antfarm/models/l2_if'
 require 'antfarm/models/l3_if'

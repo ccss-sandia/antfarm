@@ -31,13 +31,13 @@
 
 module Antfarm
   module Models
-    class IPInterface < ActiveRecord::Base
+    class IPIf < ActiveRecord::Base
       attr_accessor :ip_addr
 
-      belongs_to :l3_if, :inverse_of => :ip_interface
+      belongs_to :l3_if, :inverse_of => :ip_if
 
       after_create :create_ip_network
-      after_create :associate_layer3_network
+      after_create :associate_l3_net
 #     after_create :publish_info
 
       validates :address, :presence => true
@@ -72,7 +72,7 @@ module Antfarm
           # a new one but still create a new IP Network just in case the data given for
           # this address includes more detailed information about its network.
           unless record.ip_addr.private_address?
-            interface = IPInterface.find_by_address(record.address)
+            interface = IPIf.find_by_address(record.address)
             if interface
               record.create_ip_network
               message = "#{record.address} already exists, but a new IP Network was created"
@@ -110,7 +110,7 @@ module Antfarm
         end
       end
 
-      def associate_layer3_network
+      def associate_l3_net
         if layer3_network = L3Net.network_containing(self.address)
           self.l3_if.update_attribute :l3_net, layer3_network
         end

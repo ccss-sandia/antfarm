@@ -36,12 +36,12 @@ module Antfarm
       has_many :inbound_connections,  :class_name => 'Connection', :foreign_key => 'dst_id'
       has_many :outbound_connections, :class_name => 'Connection', :foreign_key => 'src_id'
 
-      has_one :ip_interface, :class_name => 'IPInterface', :inverse_of => :l3_if, :dependent => :destroy
+      has_one :ip_if, :class_name => 'IPIf', :inverse_of => :l3_if, :dependent => :destroy
 
       belongs_to :l2_if,  :inverse_of => :l3_ifs
       belongs_to :l3_net, :inverse_of => :l3_ifs
 
-      accepts_nested_attributes_for :ip_interface
+      accepts_nested_attributes_for :ip_if
 
       validates :l2_if,            :presence => true
       validates :certainty_factor, :presence => true
@@ -55,7 +55,7 @@ module Antfarm
           raise AntfarmError, 'nil argument supplied', caller
         end
 
-        if ip_if = IPInterface.find_by_address(ip_addr_str)
+        if ip_if = IPIf.find_by_address(ip_addr_str)
           return ip_if.l3_if
         else
           return nil

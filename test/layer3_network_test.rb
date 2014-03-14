@@ -70,9 +70,9 @@ class L3NetTest < TestCase
       L3Net.merge(nil)
     end
 
-    net1  = Fabricate :l3net,   :ip_network_attributes   => { :address => '10.0.0.0/23' }
-    net2  = Fabricate :l3net,   :ip_network_attributes   => { :address => '10.0.0.0/24' }
-    iface = Fabricate :l3iface, :ip_interface_attributes => { :address => '10.0.0.1' },
+    net1  = Fabricate :l3net,   :ip_network_attributes => { :address => '10.0.0.0/23' }
+    net2  = Fabricate :l3net,   :ip_network_attributes => { :address => '10.0.0.0/24' }
+    iface = Fabricate :l3iface, :ip_if_attributes      => { :address => '10.0.0.1' },
                                 :l3_net          => net2
 
     assert net2.ip_network, IPNetwork.find_by_address('10.0.0.0/24')

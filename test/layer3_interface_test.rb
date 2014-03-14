@@ -29,13 +29,13 @@ class L3IfTest < TestCase
   end
 
   test 'creates IP iface using attributes' do
-    iface = Fabricate :l3iface, :ip_interface_attributes => { :address => '10.0.0.1' }
-    assert_kind_of Antfarm::Models::IPInterface, iface.ip_interface
-    assert_equal   '10.0.0.1', iface.ip_interface.address
+    iface = Fabricate :l3iface, :ip_if_attributes => { :address => '10.0.0.1' }
+    assert_kind_of Antfarm::Models::IPIf, iface.ip_if
+    assert_equal   '10.0.0.1', iface.ip_if.address
   end
 
   test 'search fails when no address given' do
-    Fabricate :l3iface, :ip_interface_attributes => { :address => '10.0.0.1' }
+    Fabricate :l3iface, :ip_if_attributes => { :address => '10.0.0.1' }
     assert_raises(Antfarm::AntfarmError) do
       L3If.interface_addressed(nil)
     end

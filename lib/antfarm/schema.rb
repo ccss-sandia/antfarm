@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string  'custom'
   end
 
-  create_table 'ip_interfaces', :force => true do |t|
+  create_table 'ip_ifs', :force => true do |t|
     t.integer 'l3_if_id',                   :null => false
     t.string  'address',                    :null => false
     t.boolean 'virtual', :default => false, :null => false

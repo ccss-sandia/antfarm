@@ -93,7 +93,7 @@ module Antfarm
         interfaces = Array.new
 
         self.l3_ifs.each do |iface|
-          addr = Antfarm::IPAddrExt.new(iface.ip_interface.address)
+          addr = Antfarm::IPAddrExt.new(iface.ip_if.address)
           if network.include?(addr)
             interfaces << iface
           end

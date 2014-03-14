@@ -19,7 +19,7 @@ Fabricator(:l3iface, :class_name => Antfarm::Models::L3If) do
   certainty_factor 0.5
 end
 
-Fabricator(:ipiface, :class_name => Antfarm::Models::IPInterface) do
+Fabricator(:ipiface, :class_name => Antfarm::Models::IPIf) do
   l3_if   :fabricator => :l3iface
   address '10.0.0.1'
 end
