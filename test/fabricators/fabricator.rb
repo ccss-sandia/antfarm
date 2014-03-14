@@ -24,13 +24,13 @@ Fabricator(:ipiface, :class_name => Antfarm::Models::IPInterface) do
   address '10.0.0.1'
 end
 
-Fabricator(:l3net, :class_name => Antfarm::Models::Layer3Network) do
+Fabricator(:l3net, :class_name => Antfarm::Models::L3Net) do
   certainty_factor 0.5
 end
 
 Fabricator(:ipnet, :class_name => Antfarm::Models::IPNetwork) do
-  layer3_network :fabricator => :l3net
-  address        '10.0.0.0/24'
+  l3_net  :fabricator => :l3net
+  address '10.0.0.0/24'
 end
 
 Fabricator(:action, :class_name => Antfarm::Models::Action) do

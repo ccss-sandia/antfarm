@@ -38,8 +38,8 @@ module Antfarm
 
       has_one :ip_interface, :class_name => 'IPInterface', :inverse_of => :l3_if, :dependent => :destroy
 
-      belongs_to :l2_if,          :inverse_of => :l3_ifs
-      belongs_to :layer3_network, :inverse_of => :l3_ifs
+      belongs_to :l2_if,  :inverse_of => :l3_ifs
+      belongs_to :l3_net, :inverse_of => :l3_ifs
 
       accepts_nested_attributes_for :ip_interface
 

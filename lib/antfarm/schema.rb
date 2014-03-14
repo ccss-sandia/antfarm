@@ -52,27 +52,27 @@ ActiveRecord::Schema.define(:version => 7) do
 
   create_table 'l3_ifs', :force => true do |t|
     t.integer 'l2_if_id',         :null => false
-    t.integer 'layer3_network_id'
+    t.integer 'l3_net_id'
     t.float   'certainty_factor', :null => false
     t.string  'protocol'
     t.string  'custom'
   end
 
   create_table 'ip_interfaces', :force => true do |t|
-    t.integer 'l3_if_id',        :null => false
+    t.integer 'l3_if_id',                   :null => false
     t.string  'address',                    :null => false
     t.boolean 'virtual', :default => false, :null => false
     t.string  'custom'
   end
 
-  create_table 'layer3_networks', :force => true do |t|
+  create_table 'l3_nets', :force => true do |t|
     t.float  'certainty_factor', :null => false
     t.string 'protocol'
     t.string 'custom'
   end
 
   create_table 'ip_networks', :force => true do |t|
-    t.integer 'layer3_network_id',                    :null => false
+    t.integer 'l3_net_id',                            :null => false
     t.integer 'private_network_id'
     t.string  'address',                              :null => false
     t.boolean 'private',           :default => false, :null => false

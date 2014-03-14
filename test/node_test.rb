@@ -55,12 +55,12 @@ class NodeTest < TestCase
       }]
 
     iface = L3If.interface_addressed('192.168.101.5')
-    net   = Layer3Network.network_addressed('192.168.101.0/24')
+    net   = L3Net.network_addressed('192.168.101.0/24')
 
     assert iface
     assert net
 
-    assert net == iface.layer3_network
+    assert net == iface.l3_net
   end
 
   test 'allows tags to be added via taggable association' do

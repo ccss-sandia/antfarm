@@ -32,17 +32,17 @@
 module Antfarm
   module Models
     class IPNetwork < ActiveRecord::Base
-      belongs_to :layer3_network,  :inverse_of => :ip_network
+      belongs_to :l3_net,          :inverse_of => :ip_network
       belongs_to :private_network, :inverse_of => :ip_networks
 
-      before_validation :create_layer3_network, :on => :create
+      before_validation :create_l3_net, :on => :create
 
       before_create :set_private_address
-      after_create  :merge_layer3_networks
+      after_create  :merge_l3_nets
 #     after_create  :publish_info
 
-      validates :address,        :presence => true
-      validates :layer3_network, :presence => true
+      validates :address, :presence => true
+      validates :l3_net,  :presence => true
 
       # Overriding the address setter in order to create an instance variable for an
       # Antfarm::IPAddrExt object ip_net.  This way the rest of the methods in this
@@ -83,9 +83,9 @@ module Antfarm
         end
       end
 
-      def create_layer3_network
-        unless self.layer3_network
-          layer3_network = Layer3Network.new :certainty_factor => 0.75
+      def create_l3_net
+        unless self.l3_net
+          layer3_network = L3Net.new :certainty_factor => 0.75
           if layer3_network.save
             Antfarm.log :info, 'IPNetwork: Created Layer 3 Network'
           else
@@ -95,14 +95,14 @@ module Antfarm
             end
           end
 
-          self.layer3_network = layer3_network
+          self.l3_net = layer3_network
         end
       end
 
-      def merge_layer3_networks
+      def merge_l3_nets
         # Merge any existing networks already in the database that are
         # sub_networks of this new network.
-        Layer3Network.merge(self.layer3_network, 0.80)
+        L3Net.merge(self.l3_net, 0.80)
       end
 
       def publish_info

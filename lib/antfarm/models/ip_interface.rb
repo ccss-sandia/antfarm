@@ -88,7 +88,7 @@ module Antfarm
       def create_ip_network
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
-        unless Layer3Network.network_containing(self.ip_addr.to_cidr_string)
+        unless L3Net.network_containing(self.ip_addr.to_cidr_string)
           if self.ip_addr.prefix == 32 # no subnet data provided
             self.ip_addr.prefix = Antfarm.config.prefix # defaults to /30
 
@@ -102,7 +102,7 @@ module Antfarm
             certainty_factor = Antfarm::CF_PROVEN_TRUE
           end
 
-          Layer3Network.create!(
+          L3Net.create!(
             :certainty_factor => certainty_factor,
             :protocol => 'IP',
             :ip_network_attributes => { :address => self.ip_addr.to_cidr_string }
@@ -111,14 +111,14 @@ module Antfarm
       end
 
       def associate_layer3_network
-        if layer3_network = Layer3Network.network_containing(self.address)
-          self.l3_if.update_attribute :layer3_network, layer3_network
+        if layer3_network = L3Net.network_containing(self.address)
+          self.l3_if.update_attribute :l3_net, layer3_network
         end
       end
 
       def publish_info
-          node = self.l3_if.layer2_interface.node
-          net  = self.l3_if.layer3_network.ip_network
+          node = self.l3_if.l2_if.node
+          net  = self.l3_if.l3_net.ip_network
           data = { :link => { :source => "node:#{node.id}", :target => "net:#{net.id}", :value => 1 } }
           Antfarm.output 'create', JSON.generate(data)
       end

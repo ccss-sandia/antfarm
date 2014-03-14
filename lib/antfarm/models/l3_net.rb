@@ -31,11 +31,11 @@
 
 module Antfarm
   module Models
-    class Layer3Network < ActiveRecord::Base
+    class L3Net < ActiveRecord::Base
       has_many :tags,   :as => :taggable
-      has_many :l3_ifs, :inverse_of => :layer3_network
+      has_many :l3_ifs, :inverse_of => :l3_net
 
-      has_one :ip_network, :class_name => 'IPNetwork', :inverse_of => :layer3_network, :dependent => :destroy
+      has_one :ip_network, :class_name => 'IPNetwork', :inverse_of => :l3_net, :dependent => :destroy
 
       accepts_nested_attributes_for :ip_network
 
@@ -61,7 +61,7 @@ module Antfarm
             merge_certainty_factor = Antfarm.clamp(merge_certainty_factor)
 
             sub_network.l3_ifs.each do |iface|
-              iface.update_attribute :layer3_network, network
+              iface.update_attribute :l3_net, network
             end
 
 #           network.layer3_interfaces << sub_network.layer3_interfaces
@@ -100,7 +100,7 @@ module Antfarm
         ip_nets = IPNetwork.find(:all)
         for ip_net in ip_nets
           if Antfarm::IPAddrExt.new(ip_net.address).network_in_network?(network)
-            return Layer3Network.find(ip_net.id)
+            return L3Net.find(ip_net.id)
           end
         end
 
@@ -120,7 +120,7 @@ module Antfarm
 
         ip_nets = IPNetwork.find(:all)
         for ip_net in ip_nets
-          sub_networks << Layer3Network.find(ip_net.id) if network.network_in_network?(ip_net.address)
+          sub_networks << L3Net.find(ip_net.id) if network.network_in_network?(ip_net.address)
         end
 
         return sub_networks
