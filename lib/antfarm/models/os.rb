@@ -31,7 +31,7 @@
 
 module Antfarm
   module Models
-    class OperatingSystem < ActiveRecord::Base
+    class OS < ActiveRecord::Base
       belongs_to :action
       belongs_to :node
 

@@ -92,7 +92,7 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string 'custom'
   end
 
-  create_table 'operating_systems', :force => true do |t|
+  create_table 'os', :force => true do |t|
     t.integer 'action_id'
     t.integer 'node_id',          :null => false
     t.float   'certainty_factor', :null => false

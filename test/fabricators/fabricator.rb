@@ -38,7 +38,7 @@ Fabricator(:action, :class_name => Antfarm::Models::Action) do
   description 'network scanner'
 end
 
-Fabricator(:os, :class_name => Antfarm::Models::OperatingSystem) do
+Fabricator(:os, :class_name => Antfarm::Models::OS) do
   node             :fabricator => :node
   certainty_factor 0.5
 end
