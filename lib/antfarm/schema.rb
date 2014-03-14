@@ -44,7 +44,7 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string  'custom'
   end
 
-  create_table 'ethernet_interfaces', :force => true do |t|
+  create_table 'eth_ifs', :force => true do |t|
     t.integer 'l2_if_id', :null => false
     t.string  'address',  :null => false
     t.string  'custom'

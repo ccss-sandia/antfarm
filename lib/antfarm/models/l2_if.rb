@@ -35,12 +35,12 @@ module Antfarm
       has_many :tags, :as => :taggable
       has_many :l3_ifs, :inverse_of => :l2_if, :dependent => :destroy
 
-      has_one :ethernet_interface, :inverse_of => :l2_if, :dependent => :destroy
+      has_one :eth_if, :inverse_of => :l2_if, :dependent => :destroy
 
       belongs_to :node, :inverse_of => :l2_ifs
 
       accepts_nested_attributes_for :l3_ifs
-      accepts_nested_attributes_for :ethernet_interface
+      accepts_nested_attributes_for :eth_if
 
       before_save :clamp_certainty_factor
 
@@ -54,7 +54,7 @@ module Antfarm
           raise AntfarmError, 'nil argument supplied', caller
         end
 
-        if eth_if = EthernetInterface.find_by_address(mac_addr_str)
+        if eth_if = EthIf.find_by_address(mac_addr_str)
           return eth_if.l2_if
         else
           return nil

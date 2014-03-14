@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class EthernetInterfaceTest < TestCase
+class EthIfTest < TestCase
   include Antfarm::Models
 
   test 'fails with no layer 2 interface' do

@@ -29,13 +29,13 @@ class L2IfTest < TestCase
   end
 
   test 'creates ethernet iface using attributes' do
-    iface = Fabricate :l2iface, :ethernet_interface_attributes => { :address => 'AB:00:00:00:00:00' }
-    assert_kind_of Antfarm::Models::EthernetInterface, iface.ethernet_interface
-    assert_equal   'AB:00:00:00:00:00', iface.ethernet_interface.address
+    iface = Fabricate :l2iface, :eth_if_attributes => { :address => 'AB:00:00:00:00:00' }
+    assert_kind_of Antfarm::Models::EthIf, iface.eth_if
+    assert_equal   'AB:00:00:00:00:00', iface.eth_if.address
   end
 
   test 'search fails when no address given' do
-    Fabricate :l2iface, :ethernet_interface_attributes => { :address => 'AB:00:00:00:00:00' }
+    Fabricate :l2iface, :eth_if_attributes => { :address => 'AB:00:00:00:00:00' }
     assert_raises(Antfarm::AntfarmError) do
       L2If.interface_addressed(nil)
     end

@@ -31,8 +31,8 @@
 
 module Antfarm
   module Models
-    class EthernetInterface < ActiveRecord::Base
-      belongs_to :l2_if, :inverse_of => :ethernet_interface
+    class EthIf < ActiveRecord::Base
+      belongs_to :l2_if, :inverse_of => :eth_if
 
       validates :address, :presence => true,
                           :format   => { :with => /^([0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}$/i }

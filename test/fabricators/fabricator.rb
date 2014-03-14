@@ -9,7 +9,7 @@ Fabricator(:l2iface, :class_name => Antfarm::Models::L2If) do
   certainty_factor 0.5
 end
 
-Fabricator(:ethiface, :class_name => Antfarm::Models::EthernetInterface) do
+Fabricator(:ethiface, :class_name => Antfarm::Models::EthIf) do
   l2_if   :fabricator => :l2iface
   address '00:00:00:00:00:01'
 end
