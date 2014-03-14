@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class IPInterfaceTest < TestCase
+class IPIfTest < TestCase
   include Antfarm::Models
 
   test 'fails with no layer 3 interface' do
