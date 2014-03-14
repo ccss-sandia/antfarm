@@ -35,9 +35,9 @@ module Antfarm
       has_many :tags,   :as => :taggable
       has_many :l3_ifs, :inverse_of => :l3_net
 
-      has_one :ip_network, :class_name => 'IPNetwork', :inverse_of => :l3_net, :dependent => :destroy
+      has_one :ip_net, :class_name => 'IPNet', :inverse_of => :l3_net, :dependent => :destroy
 
-      accepts_nested_attributes_for :ip_network
+      accepts_nested_attributes_for :ip_net
 
       before_save :clamp_certainty_factor
 
@@ -50,9 +50,9 @@ module Antfarm
           raise AntfarmError, "nil argument supplied", caller
         end
 
-        Antfarm.log :info, "Merge called for #{network.ip_network.address}"
+        Antfarm.log :info, "Merge called for #{network.ip_net.address}"
 
-        for sub_network in self.networks_contained_within(network.ip_network.address)
+        for sub_network in self.networks_contained_within(network.ip_net.address)
           unless sub_network == network
             unless merge_certainty_factor
               merge_certainty_factor = Antfarm::CF_LACK_OF_PROOF
@@ -73,7 +73,7 @@ module Antfarm
             network.save!
 
             # Because of :dependent => :destroy above, calling destroy
-            # here will also cause destroy to be called on ip_network
+            # here will also cause destroy to be called on ip_net
             sub_network.destroy
           end
         end
@@ -97,7 +97,7 @@ module Antfarm
         # before a Layer3Network is created.
         network = Antfarm::IPAddrExt.new(ip_net_str)
 
-        ip_nets = IPNetwork.find(:all)
+        ip_nets = IPNet.find(:all)
         for ip_net in ip_nets
           if Antfarm::IPAddrExt.new(ip_net.address).network_in_network?(network)
             return L3Net.find(ip_net.id)
@@ -118,7 +118,7 @@ module Antfarm
         network = Antfarm::IPAddrExt.new(ip_net_str)
         sub_networks = Array.new
 
-        ip_nets = IPNetwork.find(:all)
+        ip_nets = IPNet.find(:all)
         for ip_net in ip_nets
           sub_networks << L3Net.find(ip_net.id) if network.network_in_network?(ip_net.address)
         end

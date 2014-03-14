@@ -21,13 +21,13 @@ class L3NetTest < TestCase
   end
 
   test 'creates IP network using attributes' do
-    net = Fabricate :l3net, :ip_network_attributes => { :address => '10.0.0.0/24' }
-    assert_kind_of Antfarm::Models::IPNetwork, net.ip_network
-    assert_equal   '10.0.0.0/24', net.ip_network.address
+    net = Fabricate :l3net, :ip_net_attributes => { :address => '10.0.0.0/24' }
+    assert_kind_of Antfarm::Models::IPNet, net.ip_net
+    assert_equal   '10.0.0.0/24', net.ip_net.address
   end
 
   test 'addressed/containing search fails when no address given' do
-    Fabricate :l3net, :ip_network_attributes => { :address => '10.0.0.0/24' }
+    Fabricate :l3net, :ip_net_attributes => { :address => '10.0.0.0/24' }
 
     assert_raises(Antfarm::AntfarmError) do
       L3Net.network_addressed(nil)
@@ -51,7 +51,7 @@ class L3NetTest < TestCase
   end
 
   test 'contained_within search fails when no address given' do
-    Fabricate :l3net, :ip_network_attributes => { :address => '10.0.0.0/24' }
+    Fabricate :l3net, :ip_net_attributes => { :address => '10.0.0.0/24' }
 
     assert_raises(Antfarm::AntfarmError) do
       L3Net.networks_contained_within(nil)
@@ -61,7 +61,7 @@ class L3NetTest < TestCase
 
     L3Net.networks_contained_within('10.0.0.0/23').each do |net|
       assert_kind_of Antfarm::Models::L3Net, net
-      assert '10.0.0.0/24', net.ip_network.address
+      assert '10.0.0.0/24', net.ip_net.address
     end
   end
 
@@ -70,19 +70,19 @@ class L3NetTest < TestCase
       L3Net.merge(nil)
     end
 
-    net1  = Fabricate :l3net,   :ip_network_attributes => { :address => '10.0.0.0/23' }
-    net2  = Fabricate :l3net,   :ip_network_attributes => { :address => '10.0.0.0/24' }
+    net1  = Fabricate :l3net,   :ip_net_attributes => { :address => '10.0.0.0/23' }
+    net2  = Fabricate :l3net,   :ip_net_attributes => { :address => '10.0.0.0/24' }
     iface = Fabricate :l3iface, :ip_if_attributes      => { :address => '10.0.0.1' },
                                 :l3_net          => net2
 
-    assert net2.ip_network, IPNetwork.find_by_address('10.0.0.0/24')
+    assert net2.ip_net, IPNet.find_by_address('10.0.0.0/24')
 
     assert net2, iface.l3_net
     L3Net.merge(net1)
     assert net1, iface.l3_net
 
     assert '10.0.0.0/23', L3Net.network_addressed('10.0.0.0/24')
-    assert_nil IPNetwork.find_by_address('10.0.0.0/24')
+    assert_nil IPNet.find_by_address('10.0.0.0/24')
   end
 
   test 'allows tags to be added via taggable association' do

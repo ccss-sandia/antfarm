@@ -87,7 +87,7 @@ module Antfarm
 
         if display
           net_indexes[network.id] = nodes.length
-          nodes << { :name => "net-#{network.id}", :group => 'LAN', :label => network.ip_network.address }
+          nodes << { :name => "net-#{network.id}", :group => 'LAN', :label => network.ip_net.address }
         end
       end
 

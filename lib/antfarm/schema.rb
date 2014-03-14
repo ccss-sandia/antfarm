@@ -71,7 +71,7 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string 'custom'
   end
 
-  create_table 'ip_networks', :force => true do |t|
+  create_table 'ip_nets', :force => true do |t|
     t.integer 'l3_net_id',                            :null => false
     t.integer 'private_network_id'
     t.string  'address',                              :null => false

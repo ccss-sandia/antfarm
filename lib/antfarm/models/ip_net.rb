@@ -31,9 +31,9 @@
 
 module Antfarm
   module Models
-    class IPNetwork < ActiveRecord::Base
-      belongs_to :l3_net,          :inverse_of => :ip_network
-      belongs_to :private_network, :inverse_of => :ip_networks
+    class IPNet < ActiveRecord::Base
+      belongs_to :l3_net,          :inverse_of => :ip_net
+      belongs_to :private_network, :inverse_of => :ip_nets
 
       before_validation :create_l3_net, :on => :create
 
@@ -87,9 +87,9 @@ module Antfarm
         unless self.l3_net
           layer3_network = L3Net.new :certainty_factor => 0.75
           if layer3_network.save
-            Antfarm.log :info, 'IPNetwork: Created Layer 3 Network'
+            Antfarm.log :info, 'IPNet: Created Layer 3 Network'
           else
-            Antfarm.log :warn, 'IPNetwork: Errors occured while creating Layer 3 Network'
+            Antfarm.log :warn, 'IPNet: Errors occured while creating Layer 3 Network'
             layer3_network.errors.full_messages do |msg|
               Antfarm.log :warn, msg
             end

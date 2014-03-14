@@ -36,7 +36,7 @@ module Antfarm
 
       belongs_to :l3_if, :inverse_of => :ip_if
 
-      after_create :create_ip_network
+      after_create :create_ip_net
       after_create :associate_l3_net
 #     after_create :publish_info
 
@@ -74,7 +74,7 @@ module Antfarm
           unless record.ip_addr.private_address?
             interface = IPIf.find_by_address(record.address)
             if interface
-              record.create_ip_network
+              record.create_ip_net
               message = "#{record.address} already exists, but a new IP Network was created"
               record.errors.add(:address, message)
               Antfarm.log :info, message
@@ -85,7 +85,7 @@ module Antfarm
         end
       end
 
-      def create_ip_network
+      def create_ip_net
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
         unless L3Net.network_containing(self.ip_addr.to_cidr_string)
@@ -105,7 +105,7 @@ module Antfarm
           L3Net.create!(
             :certainty_factor => certainty_factor,
             :protocol => 'IP',
-            :ip_network_attributes => { :address => self.ip_addr.to_cidr_string }
+            :ip_net_attributes => { :address => self.ip_addr.to_cidr_string }
           )
         end
       end
@@ -118,7 +118,7 @@ module Antfarm
 
       def publish_info
           node = self.l3_if.l2_if.node
-          net  = self.l3_if.l3_net.ip_network
+          net  = self.l3_if.l3_net.ip_net
           data = { :link => { :source => "node:#{node.id}", :target => "net:#{net.id}", :value => 1 } }
           Antfarm.output 'create', JSON.generate(data)
       end
