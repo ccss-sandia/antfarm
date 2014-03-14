@@ -3,7 +3,7 @@
 require 'antfarm'
 require 'trollop'
 
-COMMANDS  = ['help', 'init', 'list']
+COMMANDS  = ['console', 'help', 'init', 'list', 'server']
 COMMANDS << Antfarm.plugins.keys
 COMMANDS.flatten
 
@@ -15,6 +15,7 @@ administration tools, network equipment configuration files, etc. Designed for u
 critical infrastructure control systems.
 
 Usage:
+  antfarm <globals> console             # Drop into a Pry console with access to data models
   antfarm <globals> help <plugin>       # Display the application or plugin help message
   antfarm <globals> list                # List the available plugins
   antfarm <globals> init                # Initialize the database for the given environment

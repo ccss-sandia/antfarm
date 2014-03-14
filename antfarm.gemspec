@@ -33,9 +33,9 @@ require File.expand_path(File.dirname(__FILE__) + '/lib/antfarm/version')
 
 Gem::Specification.new do |s| 
   s.name          = %q{antfarm}
-  s.version       = "#{Antfarm.version}.beta1"
+  s.version       = "#{Antfarm.version}"
   s.authors       = ['Bryan T. Richardson']
-  s.email         = %q{scada@sandia.gov}
+  s.email         = %q{btricha@sandia.gov}
   s.date          = %q{2014-03-13}
   s.summary       = %q{Passive network mapping tool}
   s.description   = %q{ANTFARM is a passive network mapping tool capable of
@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
                        administration tools, network equipment configuration
                        files, etc. Designed for use when assessing critical
                        infrastructure control systems.}
-  s.homepage      = %q{http://ccss-sandia.github.com/antfarm}
+  s.homepage      = %q{https://github.com/ccss-sandia/antfarm}
   s.files         = Dir['{bin,lib,man}/**/*','README.md'].to_a
   s.require_paths = ['lib']
   s.executables  << 'antfarm'

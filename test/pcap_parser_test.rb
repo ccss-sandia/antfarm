@@ -3,7 +3,7 @@ require 'packetfu/modbus'
 
 class PcapParserTest < TestCase
   test 'modbus parser works and so does oui parser' do
-    PacketFu::PcapFile.read_packets('pcap-parser-test-data.pcap') do |pkt|
+    PacketFu::PcapFile.read_packets('test/pcap-parser-test-data.pcap') do |pkt|
       begin
         assert pkt.proto.include?('IP')
         assert pkt.proto.include?('TCP')
