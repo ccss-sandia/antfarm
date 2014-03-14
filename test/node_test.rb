@@ -47,20 +47,20 @@ class NodeTest < TestCase
 
   test 'creates full stack of records using attributes' do
     Fabricate :node,
-      :layer2_interfaces_attributes => [{
+      :l2_ifs_attributes => [{
         :certainty_factor => 1.0, :media_type => 'Ethernet',
-        :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
-          :ip_interface_attributes => { :address => '192.168.101.5/24' }
+        :l3_ifs_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
+          :ip_if_attributes => { :address => '192.168.101.5/24' }
         }]
       }]
 
-    iface = Layer3Interface.interface_addressed('192.168.101.5')
-    net   = Layer3Network.network_addressed('192.168.101.0/24')
+    iface = L3If.interface_addressed('192.168.101.5')
+    net   = L3Net.network_addressed('192.168.101.0/24')
 
     assert iface
     assert net
 
-    assert net == iface.layer3_network
+    assert net == iface.l3_net
   end
 
   test 'allows tags to be added via taggable association' do

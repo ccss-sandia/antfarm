@@ -29,46 +29,6 @@
 #                                                                              #
 ################################################################################
 
-module Antfarm
-  module Models
-    class Layer3Interface < ActiveRecord::Base
-      has_many :tags, :as => :taggable
-      has_many :inbound_connections,  :class_name => 'Connection', :foreign_key => 'target_layer3_interface_id'
-      has_many :outbound_connections, :class_name => 'Connection', :foreign_key => 'source_layer3_interface_id'
-
-      has_one :ip_interface, :inverse_of => :layer3_interface, :dependent => :destroy
-
-      belongs_to :layer2_interface, :inverse_of => :layer3_interfaces
-      belongs_to :layer3_network,   :inverse_of => :layer3_interfaces
-
-      accepts_nested_attributes_for :ip_interface
-
-      validates :layer2_interface, :presence => true
-      validates :certainty_factor, :presence => true
-
-      before_save :clamp_certainty_factor
-
-      # Find and return the layer 3 interface
-      # with the given IP address.
-      def self.interface_addressed(ip_addr_str)
-        unless ip_addr_str
-          raise AntfarmError, 'nil argument supplied', caller
-        end
-
-        if ip_if = IpInterface.find_by_address(ip_addr_str)
-          return ip_if.layer3_interface
-        else
-          return nil
-        end
-      end
-
-      #######
-      private
-      #######
-
-      def clamp_certainty_factor
-        self.certainty_factor = Antfarm.clamp(self.certainty_factor)
-      end
-    end
-  end
+class PrivateNet < ActiveRecord::Base
+  has_many :ip_nets, :inverse_of => :private_net
 end

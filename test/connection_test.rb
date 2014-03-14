@@ -5,17 +5,17 @@ class ConnectionTest < TestCase
 
   test 'fails with no source present' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      Fabricate :conn, :source_layer3_interface => nil
+      Fabricate :conn, :src => nil
     end
 
-    assert !Fabricate.build(:conn, :source_layer3_interface => nil).valid?
+    assert !Fabricate.build(:conn, :src => nil).valid?
   end
 
   test 'fails with no target present' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      Fabricate :conn, :target_layer3_interface => nil
+      Fabricate :conn, :dst => nil
     end
 
-    assert !Fabricate.build(:conn, :target_layer3_interface => nil).valid?
+    assert !Fabricate.build(:conn, :dst => nil).valid?
   end
 end

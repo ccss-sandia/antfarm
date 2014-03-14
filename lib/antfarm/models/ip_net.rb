@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -31,18 +31,18 @@
 
 module Antfarm
   module Models
-    class IpNetwork < ActiveRecord::Base
-      belongs_to :layer3_network,  :inverse_of => :ip_network
-      belongs_to :private_network, :inverse_of => :ip_networks
+    class IPNet < ActiveRecord::Base
+      belongs_to :l3_net,      :inverse_of => :ip_net
+      belongs_to :private_net, :inverse_of => :ip_nets
 
-      before_validation :create_layer3_network, :on => :create
+      before_validation :create_l3_net, :on => :create
 
       before_create :set_private_address
-      after_create  :merge_layer3_networks
-      after_create  :publish_info
+      after_create  :merge_l3_nets
+#     after_create  :publish_info
 
-      validates :address,        :presence => true
-      validates :layer3_network, :presence => true
+      validates :address, :presence => true
+      validates :l3_net,  :presence => true
 
       # Overriding the address setter in order to create an instance variable for an
       # Antfarm::IPAddrExt object ip_net.  This way the rest of the methods in this
@@ -79,30 +79,30 @@ module Antfarm
         self.private = Antfarm::IPAddrExt.new(self.address).private_address?
 
         if self.private
-          self.create_private_network :description => "Private network for #{self.address}"
+          self.create_private_net :description => "Private network for #{self.address}"
         end
       end
 
-      def create_layer3_network
-        unless self.layer3_network
-          layer3_network = Layer3Network.new :certainty_factor => 0.75
+      def create_l3_net
+        unless self.l3_net
+          layer3_network = L3Net.new :certainty_factor => 0.75
           if layer3_network.save
-            Antfarm.log :info, 'IpNetwork: Created Layer 3 Network'
+            Antfarm.log :info, 'IPNet: Created Layer 3 Network'
           else
-            Antfarm.log :warn, 'IpNetwork: Errors occured while creating Layer 3 Network'
+            Antfarm.log :warn, 'IPNet: Errors occured while creating Layer 3 Network'
             layer3_network.errors.full_messages do |msg|
               Antfarm.log :warn, msg
             end
           end
 
-          self.layer3_network = layer3_network
+          self.l3_net = layer3_network
         end
       end
 
-      def merge_layer3_networks
+      def merge_l3_nets
         # Merge any existing networks already in the database that are
         # sub_networks of this new network.
-        Layer3Network.merge(self.layer3_network, 0.80)
+        L3Net.merge(self.l3_net, 0.80)
       end
 
       def publish_info

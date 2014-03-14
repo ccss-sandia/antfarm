@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -31,13 +31,13 @@
 
 module Antfarm
   module Models
-    class Layer3Network < ActiveRecord::Base
-      has_many :tags, :as => :taggable
-      has_many :layer3_interfaces, :inverse_of => :layer3_network
+    class L3Net < ActiveRecord::Base
+      has_many :tags,   :as => :taggable
+      has_many :l3_ifs, :inverse_of => :l3_net
 
-      has_one :ip_network, :inverse_of => :layer3_network, :dependent => :destroy
+      has_one :ip_net, :class_name => 'IPNet', :inverse_of => :l3_net, :dependent => :destroy
 
-      accepts_nested_attributes_for :ip_network
+      accepts_nested_attributes_for :ip_net
 
       before_save :clamp_certainty_factor
 
@@ -46,22 +46,22 @@ module Antfarm
       # Take the given network and merge with it
       # any sub_networks of the given network.
       def self.merge(network, merge_certainty_factor = Antfarm::CF_PROVEN_TRUE)
-        unless network 
+        unless network
           raise AntfarmError, "nil argument supplied", caller
         end
 
-        Antfarm.output "  Merge called for #{network.ip_network.address}"
+        Antfarm.log :info, "Merge called for #{network.ip_net.address}"
 
-        for sub_network in self.networks_contained_within(network.ip_network.address)
-          unless sub_network == network 
+        for sub_network in self.networks_contained_within(network.ip_net.address)
+          unless sub_network == network
             unless merge_certainty_factor
               merge_certainty_factor = Antfarm::CF_LACK_OF_PROOF
             end
 
             merge_certainty_factor = Antfarm.clamp(merge_certainty_factor)
 
-            sub_network.layer3_interfaces.each do |iface|
-              iface.update_attribute :layer3_network, network
+            sub_network.l3_ifs.each do |iface|
+              iface.update_attribute :l3_net, network
             end
 
 #           network.layer3_interfaces << sub_network.layer3_interfaces
@@ -69,11 +69,11 @@ module Antfarm
 #           network.layer3_interfaces.uniq!
 
             # TODO: update network's certainty factor using sub_network's certainty factor.
-            
+
             network.save!
 
             # Because of :dependent => :destroy above, calling destroy
-            # here will also cause destroy to be called on ip_network
+            # here will also cause destroy to be called on ip_net
             sub_network.destroy
           end
         end
@@ -97,10 +97,10 @@ module Antfarm
         # before a Layer3Network is created.
         network = Antfarm::IPAddrExt.new(ip_net_str)
 
-        ip_nets = IpNetwork.find(:all)
+        ip_nets = IPNet.find(:all)
         for ip_net in ip_nets
           if Antfarm::IPAddrExt.new(ip_net.address).network_in_network?(network)
-            return Layer3Network.find(ip_net.id)
+            return L3Net.find(ip_net.id)
           end
         end
 
@@ -118,9 +118,9 @@ module Antfarm
         network = Antfarm::IPAddrExt.new(ip_net_str)
         sub_networks = Array.new
 
-        ip_nets = IpNetwork.find(:all)
+        ip_nets = IPNet.find(:all)
         for ip_net in ip_nets
-          sub_networks << Layer3Network.find(ip_net.id) if network.network_in_network?(ip_net.address)
+          sub_networks << L3Net.find(ip_net.id) if network.network_in_network?(ip_net.address)
         end
 
         return sub_networks

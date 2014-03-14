@@ -1,14 +1,14 @@
 require 'test_helper'
 
-class OperatingSystemTest < TestCase
+class OSTest < TestCase
   include Antfarm::Models
 
   test 'fails with no certainty factor' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      OperatingSystem.create!
+      OS.create!
     end
 
-    assert !OperatingSystem.create.valid?
+    assert !OS.create.valid?
   end
 
   test 'fails with no node present' do

@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -31,17 +31,17 @@
 
 module Antfarm
   module Models
-    class IpInterface < ActiveRecord::Base
+    class IPIf < ActiveRecord::Base
       attr_accessor :ip_addr
 
-      belongs_to :layer3_interface, :inverse_of => :ip_interface
+      belongs_to :l3_if, :inverse_of => :ip_if
 
-      after_create :create_ip_network
-      after_create :associate_layer3_network
-      after_create :publish_info
+      after_create :create_ip_net
+      after_create :associate_l3_net
+#     after_create :publish_info
 
-      validates :address,          :presence => true
-      validates :layer3_interface, :presence => true
+      validates :address, :presence => true
+      validates :l3_if,   :presence => true
 
       # Overriding the address setter in order to create an instance variable for an
       # Antfarm::IPAddrExt object ip_addr. This way the rest of the methods in this
@@ -72,12 +72,12 @@ module Antfarm
           # a new one but still create a new IP Network just in case the data given for
           # this address includes more detailed information about its network.
           unless record.ip_addr.private_address?
-            interface = IpInterface.find_by_address(record.address)
+            interface = IPIf.find_by_address(record.address)
             if interface
-              record.create_ip_network
+              record.create_ip_net
               message = "#{record.address} already exists, but a new IP Network was created"
               record.errors.add(:address, message)
-              Antfarm.output message
+              Antfarm.log :info, message
             end
           end
         rescue ArgumentError
@@ -85,26 +85,57 @@ module Antfarm
         end
       end
 
-      def create_ip_network
+      def create_ip_net
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
-        unless Layer3Network.network_containing(self.ip_addr.to_cidr_string)
-          self.ip_addr.netmask = self.ip_addr.netmask << 3 if self.ip_addr == self.ip_addr.network
-          IpNetwork.create!(:address => self.ip_addr.to_cidr_string)
+        unless L3Net.network_containing(self.ip_addr.to_cidr_string)
+          if self.ip_addr.prefix == 32 # no subnet data provided
+            self.ip_addr.prefix = Antfarm.config.prefix # defaults to /30
+
+            # address for this interface shouldn't be a network address...
+            if self.ip_addr == self.ip_addr.network
+              self.ip_addr.prefix = Antfarm.config.prefix - 1
+            end
+
+            certainty_factor = Antfarm::CF_LIKELY_FALSE
+          else
+            certainty_factor = Antfarm::CF_PROVEN_TRUE
+          end
+
+          L3Net.create!(
+            :certainty_factor => certainty_factor,
+            :protocol => 'IP',
+            :ip_net_attributes => { :address => self.ip_addr.to_cidr_string }
+          )
         end
       end
 
-      def associate_layer3_network
-        if layer3_network = Layer3Network.network_containing(self.address)
-          self.layer3_interface.update_attribute :layer3_network, layer3_network
+      def associate_l3_net
+        if layer3_network = L3Net.network_containing(self.address)
+          self.l3_if.update_attribute :l3_net, layer3_network
         end
       end
 
       def publish_info
-          node = self.layer3_interface.layer2_interface.node
-          net  = self.layer3_interface.layer3_network.ip_network
+          node = self.l3_if.l2_if.node
+          net  = self.l3_if.l3_net.ip_net
           data = { :link => { :source => "node:#{node.id}", :target => "net:#{net.id}", :value => 1 } }
           Antfarm.output 'create', JSON.generate(data)
+      end
+
+      # Allow prefix provided to be nil just in case this
+      # call is part of a loop that may or may not need
+      # to change the prefix. See the `traceroute` plugin
+      # for an example use case such as this.
+      def self.execute_with_prefix(prefix = nil, &block)
+        if prefix.nil?
+          yield
+        else
+          original_prefix = Antfarm.config.prefix
+          Antfarm.config.prefix = prefix.to_i
+          yield
+          Antfarm.config.prefix = original_prefix
+        end
       end
     end
   end

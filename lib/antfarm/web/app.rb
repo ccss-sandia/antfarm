@@ -102,7 +102,7 @@ module Antfarm
               net = nets.pop
               net_indexes[net.id] = nodes.length
 
-              data[:node] = { :name => net.id, :group => 'LAN', :label => net.ip_network.address }
+              data[:node] = { :name => net.id, :group => 'LAN', :label => net.ip_net.address }
               nodes << net
               hosts = net.layer3_interfaces
             else

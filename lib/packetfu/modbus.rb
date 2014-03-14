@@ -1,3 +1,5 @@
+require 'packetfu'
+
 module PacketFu
   class ModbusHeader < Struct.new(:modbus_tid, :modbus_pid, :modbus_len, :modbus_uid, :modbus_fc, :body)
     include StructFu
@@ -114,7 +116,7 @@ module PacketFu
 
       return self
     end
-    
+
     def initialize(args = Hash.new)
       @eth_header = EthHeader.new(args).read(args[:eth])
       @ip_header  = IPHeader.new(args).read(args[:ip])

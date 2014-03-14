@@ -1,14 +1,14 @@
 require 'test_helper'
 
-class IpInterfaceTest < TestCase
+class IPIfTest < TestCase
   include Antfarm::Models
 
   test 'fails with no layer 3 interface' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      Fabricate :ipiface, :layer3_interface => nil
+      Fabricate :ipiface, :l3_if => nil
     end
 
-    assert !Fabricate.build(:ipiface, :layer3_interface => nil).valid?
+    assert !Fabricate.build(:ipiface, :l3_if => nil).valid?
   end
 
   test 'fails with no address' do
@@ -43,13 +43,13 @@ class IpInterfaceTest < TestCase
   end
 
   test 'creates IP network and merges networks and interfaces' do
-    Fabricate :l3net, :ip_network_attributes => { :address => '192.168.101.0/29' }
-    assert 1, Layer3Network.count
+    Fabricate :l3net, :ip_net_attributes => { :address => '192.168.101.0/29' }
+    assert 1, L3Net.count
 
     iface = Fabricate :ipiface, :address => '192.168.101.4/24'
 
-    assert 1, Layer3Network.count
-    assert '192.168.101.0/24', Layer3Network.first.ip_network.address
-    assert Layer3Network.first, iface.layer3_interface.layer3_network
+    assert 1, L3Net.count
+    assert '192.168.101.0/24', L3Net.first.ip_net.address
+    assert L3Net.first, iface.l3_if.l3_net
   end
 end

@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2010) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -138,6 +138,7 @@ module Antfarm
           file.puts '---'
           file.puts 'environment: antfarm'
           file.puts 'log_level: warn'
+          file.puts 'prefix: 30'
         end
         Antfarm.log :info, "Default config file created at #{ENV['HOME'] + '/.antfarm/config.yml'}"
       end

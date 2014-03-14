@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Layer2InterfaceTest < TestCase
+class L2IfTest < TestCase
   include Antfarm::Models
 
   test 'fails with no node' do
@@ -29,20 +29,20 @@ class Layer2InterfaceTest < TestCase
   end
 
   test 'creates ethernet iface using attributes' do
-    iface = Fabricate :l2iface, :ethernet_interface_attributes => { :address => 'AB:00:00:00:00:00' }
-    assert_kind_of Antfarm::Models::EthernetInterface, iface.ethernet_interface
-    assert_equal   'AB:00:00:00:00:00', iface.ethernet_interface.address
+    iface = Fabricate :l2iface, :eth_if_attributes => { :address => 'AB:00:00:00:00:00' }
+    assert_kind_of Antfarm::Models::EthIf, iface.eth_if
+    assert_equal   'AB:00:00:00:00:00', iface.eth_if.address
   end
 
   test 'search fails when no address given' do
-    Fabricate :l2iface, :ethernet_interface_attributes => { :address => 'AB:00:00:00:00:00' }
+    Fabricate :l2iface, :eth_if_attributes => { :address => 'AB:00:00:00:00:00' }
     assert_raises(Antfarm::AntfarmError) do
-      Layer2Interface.interface_addressed(nil)
+      L2If.interface_addressed(nil)
     end
 
-    assert_nil     Layer2Interface.interface_addressed('00:00:00:00:00:00')
-    assert_kind_of Antfarm::Models::Layer2Interface,
-      Layer2Interface.interface_addressed('AB:00:00:00:00:00')
+    assert_nil     L2If.interface_addressed('00:00:00:00:00:00')
+    assert_kind_of Antfarm::Models::L2If,
+      L2If.interface_addressed('AB:00:00:00:00:00')
   end
 
   test 'allows tags to be added via taggable association' do

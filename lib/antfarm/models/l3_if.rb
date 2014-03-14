@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -31,12 +31,44 @@
 
 module Antfarm
   module Models
-    class EthernetInterface < ActiveRecord::Base
-      belongs_to :layer2_interface, :inverse_of => :ethernet_interface
+    class L3If < ActiveRecord::Base
+      has_many :tags, :as => :taggable
+      has_many :inbound_connections,  :class_name => 'Connection', :foreign_key => 'dst_id'
+      has_many :outbound_connections, :class_name => 'Connection', :foreign_key => 'src_id'
 
-      validates :address,          :presence => true,
-                                   :format   => { :with => /^([0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}$/i }
-      validates :layer2_interface, :presence => true
+      has_one :ip_if, :class_name => 'IPIf', :inverse_of => :l3_if, :dependent => :destroy
+
+      belongs_to :l2_if,  :inverse_of => :l3_ifs
+      belongs_to :l3_net, :inverse_of => :l3_ifs
+
+      accepts_nested_attributes_for :ip_if
+
+      validates :l2_if,            :presence => true
+      validates :certainty_factor, :presence => true
+
+      before_save :clamp_certainty_factor
+
+      # Find and return the layer 3 interface
+      # with the given IP address.
+      def self.interface_addressed(ip_addr_str)
+        unless ip_addr_str
+          raise AntfarmError, 'nil argument supplied', caller
+        end
+
+        if ip_if = IPIf.find_by_address(ip_addr_str)
+          return ip_if.l3_if
+        else
+          return nil
+        end
+      end
+
+      #######
+      private
+      #######
+
+      def clamp_certainty_factor
+        self.certainty_factor = Antfarm.clamp(self.certainty_factor)
+      end
     end
   end
 end

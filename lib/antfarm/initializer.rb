@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2010) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -84,7 +84,7 @@ module Antfarm
 
       require 'antfarm/errors'
       require 'antfarm/helpers'
-      require 'antfarm/ip_addr_ext'
+      require 'antfarm/ipaddress_ext'
       require 'antfarm/models'
       require 'antfarm/oui_parser'
       require 'antfarm/plugin'
@@ -115,6 +115,14 @@ module Antfarm
           @configuration.log_level = config['log_level']
         else
           @configuration.default_log_level
+        end
+      end
+
+      if @configuration.prefix.nil?
+        if config['prefix']
+          @configuration.prefix = config['prefix'].to_i
+        else
+          @configuration.default_prefix
         end
       end
     end
@@ -171,11 +179,13 @@ module Antfarm
     attr_accessor :environment
     attr_accessor :log_level
     attr_accessor :outputter
-    
+    attr_accessor :prefix
+
     def initialize
       @environment = nil
       @log_level   = nil
       @outputter   = nil
+      @prefix      = nil
     end
 
     def default_environment
@@ -184,6 +194,10 @@ module Antfarm
 
     def default_log_level
       @log_level = 'warn'
+    end
+
+    def default_prefix
+      @prefix = 30
     end
   end
 end

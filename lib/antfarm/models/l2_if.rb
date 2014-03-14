@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -31,16 +31,16 @@
 
 module Antfarm
   module Models
-    class Layer2Interface < ActiveRecord::Base
+    class L2If < ActiveRecord::Base
       has_many :tags, :as => :taggable
-      has_many :layer3_interfaces, :inverse_of => :layer2_interface, :dependent => :destroy
+      has_many :l3_ifs, :inverse_of => :l2_if, :dependent => :destroy
 
-      has_one :ethernet_interface, :inverse_of => :layer2_interface, :dependent => :destroy
+      has_one :eth_if, :inverse_of => :l2_if, :dependent => :destroy
 
-      belongs_to :node, :inverse_of => :layer2_interfaces
+      belongs_to :node, :inverse_of => :l2_ifs
 
-      accepts_nested_attributes_for :layer3_interfaces
-      accepts_nested_attributes_for :ethernet_interface
+      accepts_nested_attributes_for :l3_ifs
+      accepts_nested_attributes_for :eth_if
 
       before_save :clamp_certainty_factor
 
@@ -54,8 +54,8 @@ module Antfarm
           raise AntfarmError, 'nil argument supplied', caller
         end
 
-        if eth_if = EthernetInterface.find_by_address(mac_addr_str)
-          return eth_if.layer2_interface
+        if eth_if = EthIf.find_by_address(mac_addr_str)
+          return eth_if.l2_if
         else
           return nil
         end

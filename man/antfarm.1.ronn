@@ -3,7 +3,7 @@ antfarm(1) -- passive network mapping tool
 
 ## SYNOPSIS
 
-`antfarm` [ <global options> ] command|plugin [ <command/plugin options> ]
+`antfarm` [ <global options> ] command|plugin [ <command|plugin options> ]
 
 `antfarm` -h, --help
 
@@ -60,6 +60,11 @@ arguments. Global ANTFARM commands include:
     include debug, info, warn, error and fatal. The default log level used is
     'warn'.
 
+  * `-p`, `--prefix` <prefix>:
+    The default subnet prefix used when IP interfaces are created using IP
+    address data that does not include subnet mask information. The default
+    prefix used is 30.
+
   * `-v`, `--version`:
     Display the current version of ANTFARM.
 
@@ -76,33 +81,41 @@ Display the default help message for ANTFARM:
 
     $ antfarm help
 
-Show information about all the plugins currently available in ANTFARM:
+List all the plugins currently available in ANTFARM:
 
-    $ antfarm show
+    $ antfarm list
 
 Show information specific to an available ANTFARM plugin:
 
     $ antfarm help <plugin>
 
+Drop into a Pry console with access to all the ANTFARM data models:
+
+    $ antfarm console
+
+    or
+
+    $ antfarm -e env console
+
 Execute an ANTFARM plugin:
 
-    $ antfarm load_host --input-file path/to/host/data.txt
+    $ antfarm pcap -f path/to/pcap/file.pcap
 
 Execute an ANTFARM plugin using a specified environment:
 
-    $ antfarm -e foo load_host --input-file path/to/host/data.txt
+    $ antfarm -e env pcap -f path/to/pcap/file.pcap
 
 Execute an ANTFARM plugin using a specified environment and log level:
 
-    $ antfarm -e foo -l debug load_host --input-file path/to/host/data.txt
+    $ antfarm -e env -l debug pcap -f path/to/pcap/file.pcap
 
 ## HOMEPAGE
 
-See http://ccss-sandia.github.com/antfarm for more details.
+See https://github.com/ccss-sandia/antfarm for more details.
 
 ## COPYRIGHT
 
-Copyright (2008-2010) Sandia Corporation. Under the terms of Contract
+Copyright (2008-2014) Sandia Corporation. Under the terms of Contract
 DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains certain
 rights in this software.
 

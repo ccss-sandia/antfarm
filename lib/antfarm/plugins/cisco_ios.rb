@@ -175,7 +175,7 @@ module Antfarm
               else
                 Antfarm::Models::Layer3Network.create!(
                   :certainty_factor => 1.0,
-                  :ip_network_attributes => { :address => network }
+                  :ip_net_attributes => { :address => network }
                 )
               end
             end
