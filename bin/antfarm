@@ -66,27 +66,40 @@ when 'man'
 
   if ARGV.empty?
     path = Antfarm.root + '/man/antfarm.1.ronn'
-    doc  = Ronn::Document.new(path, { 'styles' => ['man'] })
   else
-    # TODO
+    plugin = ARGV.shift
+
+    if File.exists?("#{Antfarm.root}/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn")
+      path = Antfarm.root + "/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn"
+    elsif File.exists?("#{Antfarm::Helpers.user_plugins_dir}/#{plugin}/man/#{plugin}.1.ronn")
+      path = Antfarm::Helpers.user_plugins_dir + "/#{plugin}/man/#{plugin}.1.ronn"
+    end
   end
 
-  if doc
-    rd, wr = IO.pipe
-    if pid = fork
-      rd.close
+  if path
+    doc = Ronn::Document.new(path, { 'styles' => ['man'] })
+
+    if doc
+      rd, wr = IO.pipe
+      if pid = fork
+        rd.close
+      else
+        wr.close
+        STDIN.reopen rd
+        exec "#{groff} | #{pager}"
+      end
+
+      wr.puts(doc.convert('roff'))
+
+      if pid
+        wr.close
+        Process.wait
+      end
     else
-      wr.close
-      STDIN.reopen rd
-      exec "#{groff} | #{pager}"
+      Antfarm.output 'There was an error rendering the man page'
     end
-
-    wr.puts(doc.convert('roff'))
-
-    if pid
-      wr.close
-      Process.wait
-    end
+  else
+    Antfarm.output 'The man page you requested does not exist'
   end
 when 'console'
   require 'pry'
