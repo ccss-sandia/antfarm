@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'antfarm'
+require 'ronn'
 require 'trollop'
 
-COMMANDS  = ['console', 'help', 'init', 'list', 'server']
+COMMANDS  = ['console', 'help', 'init', 'list', 'man', 'server']
 COMMANDS << Antfarm.plugins.keys
 COMMANDS.flatten
 
@@ -19,6 +20,7 @@ Usage:
   antfarm <globals> help <plugin>       # Display the application or plugin help message
   antfarm <globals> list                # List the available plugins
   antfarm <globals> init                # Initialize the database for the given environment
+  antfarm <globals> man <plugin>        # Show man page for ANTFARM or specified plugin
   antfarm <globals> server              # Start the web server for the given environment
   antfarm <globals> <plugin> <options>  # Execute given plugin with given options
 
@@ -57,6 +59,35 @@ end
 # Executing command...
 
 case command
+when 'man'
+  groff = 'groff -Wall -mtty-char -mandoc -Tascii'
+  pager = ENV['MANPAGER'] || ENV['PAGER'] || 'more'
+  pid   = nil
+
+  if ARGV.empty?
+    path = Antfarm.root + '/man/antfarm.1.ronn'
+    doc  = Ronn::Document.new(path, { 'styles' => ['man'] })
+  else
+    # TODO
+  end
+
+  if doc
+    rd, wr = IO.pipe
+    if pid = fork
+      rd.close
+    else
+      wr.close
+      STDIN.reopen rd
+      exec "#{groff} | #{pager}"
+    end
+
+    wr.puts(doc.convert('roff'))
+
+    if pid
+      wr.close
+      Process.wait
+    end
+  end
 when 'console'
   require 'pry'
   include Antfarm::Models
