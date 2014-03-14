@@ -48,7 +48,6 @@ module Antfarm
     def run(opts = Hash.new)
       check_options(opts)
 
-      require 'packetfu'
       require 'packetfu/modbus'
 
       if File.readable?(opts[:file])
