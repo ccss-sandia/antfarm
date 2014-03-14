@@ -32,8 +32,8 @@
 module Antfarm
   module Models
     class IPNet < ActiveRecord::Base
-      belongs_to :l3_net,          :inverse_of => :ip_net
-      belongs_to :private_network, :inverse_of => :ip_nets
+      belongs_to :l3_net,      :inverse_of => :ip_net
+      belongs_to :private_net, :inverse_of => :ip_nets
 
       before_validation :create_l3_net, :on => :create
 
@@ -79,7 +79,7 @@ module Antfarm
         self.private = Antfarm::IPAddrExt.new(self.address).private_address?
 
         if self.private
-          self.create_private_network :description => "Private network for #{self.address}"
+          self.create_private_net :description => "Private network for #{self.address}"
         end
       end
 

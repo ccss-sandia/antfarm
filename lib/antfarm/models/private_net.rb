@@ -29,6 +29,6 @@
 #                                                                              #
 ################################################################################
 
-class PrivateNetwork < ActiveRecord::Base
-  has_many :ip_nets, :inverse_of => :private_network
+class PrivateNet < ActiveRecord::Base
+  has_many :ip_nets, :inverse_of => :private_net
 end

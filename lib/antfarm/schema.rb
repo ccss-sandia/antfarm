@@ -72,14 +72,14 @@ ActiveRecord::Schema.define(:version => 7) do
   end
 
   create_table 'ip_nets', :force => true do |t|
-    t.integer 'l3_net_id',                            :null => false
-    t.integer 'private_network_id'
-    t.string  'address',                              :null => false
-    t.boolean 'private',           :default => false, :null => false
+    t.integer 'l3_net_id',                        :null => false
+    t.integer 'private_net_id'
+    t.string  'address',                          :null => false
+    t.boolean 'private',       :default => false, :null => false
     t.string  'custom'
   end
 
-  create_table 'private_networks', :force => true do |t|
+  create_table 'private_nets', :force => true do |t|
     t.string 'description'
     t.string 'custom'
   end

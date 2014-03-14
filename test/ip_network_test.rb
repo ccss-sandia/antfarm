@@ -45,8 +45,8 @@ class IPNetTest < TestCase
 
   test 'creates private network entry when private' do
     net = Fabricate(:ipnet, :address => '192.168.101.0/24')
-    assert 'Private network for 192.168.101.0/24', net.private_network.description
+    assert 'Private network for 192.168.101.0/24', net.private_net.description
 
-    assert !Fabricate(:ipnet, :address => '207.65.45.0/24').private_network
+    assert !Fabricate(:ipnet, :address => '207.65.45.0/24').private_net
   end
 end
