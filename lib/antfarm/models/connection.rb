@@ -32,8 +32,8 @@
 module Antfarm
   module Models
     class Connection < ActiveRecord::Base
-      belongs_to :src, :class_name => "Layer3Interface" #, :foreign_key => "src_id"
-      belongs_to :dst, :class_name => "Layer3Interface" #, :foreign_key => "dst_id"
+      belongs_to :src, :class_name => "L3If"
+      belongs_to :dst, :class_name => "L3If"
 
       validates :src, :presence => true
       validates :dst, :presence => true

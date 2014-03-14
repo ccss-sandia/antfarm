@@ -33,13 +33,13 @@ module Antfarm
   module Models
     class L2If < ActiveRecord::Base
       has_many :tags, :as => :taggable
-      has_many :layer3_interfaces, :inverse_of => :l2_if, :dependent => :destroy
+      has_many :l3_ifs, :inverse_of => :l2_if, :dependent => :destroy
 
       has_one :ethernet_interface, :inverse_of => :l2_if, :dependent => :destroy
 
       belongs_to :node, :inverse_of => :l2_ifs
 
-      accepts_nested_attributes_for :layer3_interfaces
+      accepts_nested_attributes_for :l3_ifs
       accepts_nested_attributes_for :ethernet_interface
 
       before_save :clamp_certainty_factor

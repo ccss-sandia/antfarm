@@ -5,10 +5,10 @@ class IPInterfaceTest < TestCase
 
   test 'fails with no layer 3 interface' do
     assert_raises(ActiveRecord::RecordInvalid) do
-      Fabricate :ipiface, :layer3_interface => nil
+      Fabricate :ipiface, :l3_if => nil
     end
 
-    assert !Fabricate.build(:ipiface, :layer3_interface => nil).valid?
+    assert !Fabricate.build(:ipiface, :l3_if => nil).valid?
   end
 
   test 'fails with no address' do
@@ -50,6 +50,6 @@ class IPInterfaceTest < TestCase
 
     assert 1, Layer3Network.count
     assert '192.168.101.0/24', Layer3Network.first.ip_network.address
-    assert Layer3Network.first, iface.layer3_interface.layer3_network
+    assert Layer3Network.first, iface.l3_if.layer3_network
   end
 end

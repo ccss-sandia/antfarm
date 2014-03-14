@@ -14,14 +14,14 @@ Fabricator(:ethiface, :class_name => Antfarm::Models::EthernetInterface) do
   address '00:00:00:00:00:01'
 end
 
-Fabricator(:l3iface, :class_name => Antfarm::Models::Layer3Interface) do
+Fabricator(:l3iface, :class_name => Antfarm::Models::L3If) do
   l2_if            :fabricator => :l2iface
   certainty_factor 0.5
 end
 
 Fabricator(:ipiface, :class_name => Antfarm::Models::IPInterface) do
-  layer3_interface :fabricator => :l3iface
-  address          '10.0.0.1'
+  l3_if   :fabricator => :l3iface
+  address '10.0.0.1'
 end
 
 Fabricator(:l3net, :class_name => Antfarm::Models::Layer3Network) do

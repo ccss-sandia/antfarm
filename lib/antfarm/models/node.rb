@@ -33,8 +33,8 @@ module Antfarm
   module Models
     class Node < ActiveRecord::Base
       has_many :tags, :as => :taggable
-      has_many :l2_ifs,            :inverse_of => :node, :dependent => :destroy
-      has_many :layer3_interfaces, :through => :l2_ifs
+      has_many :l2_ifs, :inverse_of => :node, :dependent => :destroy
+      has_many :l3_ifs, :through => :l2_ifs
       has_many :services
 
       has_one :operating_system
@@ -92,7 +92,7 @@ module Antfarm
       def interfaces_in_network(network)
         interfaces = Array.new
 
-        self.layer3_interfaces.each do |iface|
+        self.l3_ifs.each do |iface|
           addr = Antfarm::IPAddrExt.new(iface.ip_interface.address)
           if network.include?(addr)
             interfaces << iface

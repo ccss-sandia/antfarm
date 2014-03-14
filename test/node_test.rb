@@ -49,12 +49,12 @@ class NodeTest < TestCase
     Fabricate :node,
       :l2_ifs_attributes => [{
         :certainty_factor => 1.0, :media_type => 'Ethernet',
-        :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
+        :l3_ifs_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
           :ip_interface_attributes => { :address => '192.168.101.5/24' }
         }]
       }]
 
-    iface = Layer3Interface.interface_addressed('192.168.101.5')
+    iface = L3If.interface_addressed('192.168.101.5')
     net   = Layer3Network.network_addressed('192.168.101.0/24')
 
     assert iface

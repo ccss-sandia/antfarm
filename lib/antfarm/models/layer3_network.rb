@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -32,8 +32,8 @@
 module Antfarm
   module Models
     class Layer3Network < ActiveRecord::Base
-      has_many :tags, :as => :taggable
-      has_many :layer3_interfaces, :inverse_of => :layer3_network
+      has_many :tags,   :as => :taggable
+      has_many :l3_ifs, :inverse_of => :layer3_network
 
       has_one :ip_network, :class_name => 'IPNetwork', :inverse_of => :layer3_network, :dependent => :destroy
 
@@ -60,7 +60,7 @@ module Antfarm
 
             merge_certainty_factor = Antfarm.clamp(merge_certainty_factor)
 
-            sub_network.layer3_interfaces.each do |iface|
+            sub_network.l3_ifs.each do |iface|
               iface.update_attribute :layer3_network, network
             end
 

@@ -34,14 +34,14 @@ module Antfarm
     class IPInterface < ActiveRecord::Base
       attr_accessor :ip_addr
 
-      belongs_to :layer3_interface, :inverse_of => :ip_interface
+      belongs_to :l3_if, :inverse_of => :ip_interface
 
       after_create :create_ip_network
       after_create :associate_layer3_network
 #     after_create :publish_info
 
-      validates :address,          :presence => true
-      validates :layer3_interface, :presence => true
+      validates :address, :presence => true
+      validates :l3_if,   :presence => true
 
       # Overriding the address setter in order to create an instance variable for an
       # Antfarm::IPAddrExt object ip_addr. This way the rest of the methods in this
@@ -112,13 +112,13 @@ module Antfarm
 
       def associate_layer3_network
         if layer3_network = Layer3Network.network_containing(self.address)
-          self.layer3_interface.update_attribute :layer3_network, layer3_network
+          self.l3_if.update_attribute :layer3_network, layer3_network
         end
       end
 
       def publish_info
-          node = self.layer3_interface.layer2_interface.node
-          net  = self.layer3_interface.layer3_network.ip_network
+          node = self.l3_if.layer2_interface.node
+          net  = self.l3_if.layer3_network.ip_network
           data = { :link => { :source => "node:#{node.id}", :target => "net:#{net.id}", :value => 1 } }
           Antfarm.output 'create', JSON.generate(data)
       end

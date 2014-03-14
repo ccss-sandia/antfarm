@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Layer3InterfaceTest < TestCase
+class L3IfTest < TestCase
   include Antfarm::Models
 
   test 'fails with no layer 2 interface' do
@@ -37,12 +37,12 @@ class Layer3InterfaceTest < TestCase
   test 'search fails when no address given' do
     Fabricate :l3iface, :ip_interface_attributes => { :address => '10.0.0.1' }
     assert_raises(Antfarm::AntfarmError) do
-      Layer3Interface.interface_addressed(nil)
+      L3If.interface_addressed(nil)
     end
 
-    assert_nil     Layer3Interface.interface_addressed('10.0.0.0')
-    assert_kind_of Antfarm::Models::Layer3Interface,
-      Layer3Interface.interface_addressed('10.0.0.1')
+    assert_nil     L3If.interface_addressed('10.0.0.0')
+    assert_kind_of Antfarm::Models::L3If,
+                   L3If.interface_addressed('10.0.0.1')
   end
 
   test 'allows tags to be added via taggable association' do

@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(:version => 7) do
     t.string  'custom'
   end
 
-  create_table 'layer3_interfaces', :force => true do |t|
+  create_table 'l3_ifs', :force => true do |t|
     t.integer 'l2_if_id',         :null => false
     t.integer 'layer3_network_id'
     t.float   'certainty_factor', :null => false
@@ -59,7 +59,7 @@ ActiveRecord::Schema.define(:version => 7) do
   end
 
   create_table 'ip_interfaces', :force => true do |t|
-    t.integer 'layer3_interface_id',        :null => false
+    t.integer 'l3_if_id',        :null => false
     t.string  'address',                    :null => false
     t.boolean 'virtual', :default => false, :null => false
     t.string  'custom'
