@@ -67,7 +67,9 @@ when 'man'
   if ARGV.empty?
     path = Antfarm.root + '/man/antfarm.1.ronn'
   else
-    path = Antfarm::Plugin.manpage_path(ARGV.shift)
+    if plugin = Antfarm.plugins[ARGV.shift]
+      path = plugin.manpage_path
+    end
   end
 
   if path
@@ -93,7 +95,17 @@ when 'man'
       Antfarm.output 'There was an error rendering the man page'
     end
   else
-    Antfarm.output 'The man page you requested does not exist'
+    if plugin
+      Antfarm.output 'The man page you requested does not exist'
+    else
+      Antfarm.output "The plugin you requested a man page for is unknown.\n"
+      Antfarm.output "Below is a list of known plugins.\n\n"
+
+      # TODO: write helper method for listing plugins
+      Antfarm.plugins.each do |k,v|
+        Antfarm.output "#{k} - #{v.info[:desc]}"
+      end
+    end
   end
 when 'console'
   require 'pry'
@@ -112,9 +124,8 @@ when 'help'
   if ARGV.empty?
     parser.educate
   else
-    plugin = ARGV.shift
-    if Antfarm.plugins.keys.include?(plugin)
-      plugin = Antfarm.plugins[plugin]
+    plugin_name = ARGV.shift
+    if plugin = Antfarm.plugins[plugin_name]
 
       # TODO: write parser creator and options helper methods
       parser = Trollop::Parser.new do
@@ -126,7 +137,7 @@ when 'help'
 
       parser.educate
     else
-      Antfarm.output "Unknown plugin '#{plugin}' given. Below is a list of known plugins.\n\n"
+      Antfarm.output "Unknown plugin '#{plugin_name}' given. Below is a list of known plugins.\n\n"
 
       # TODO: write helper method for listing plugins
       Antfarm.plugins.each do |k,v|
@@ -155,8 +166,7 @@ when 'server'
   require 'antfarm/web/app'
   Antfarm::Web::Server.run! :environment => 'development', :server => 'thin', :port => 8080
 else
-  if Antfarm.plugins.keys.include?(command)
-    plugin = Antfarm.plugins[command]
+  if plugin = Antfarm.plugins[command]
 
     # TODO: only require if a default isn't set...
     options = Trollop::options do

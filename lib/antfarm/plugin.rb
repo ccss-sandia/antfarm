@@ -75,18 +75,6 @@ module Antfarm
       end
     end
 
-    def self.manpage_path(plugin)
-      path = nil
-
-      if File.exists?("#{Antfarm.root}/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn")
-        path = Antfarm.root + "/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn"
-      elsif File.exists?("#{Antfarm::Helpers.user_plugins_dir}/#{plugin}/man/#{plugin}.1.ronn")
-        path = Antfarm::Helpers.user_plugins_dir + "/#{plugin}/man/#{plugin}.1.ronn"
-      end
-
-      return path
-    end
-
     # can use the 'options' attribute to build option parsers
     # in command-line interfaces... :-)
     attr_accessor :name, :info, :options, :plugin_module
@@ -105,6 +93,18 @@ module Antfarm
       @plugin_module = plugin # why do we have plugin_module?
       Antfarm.plugins[name] = self
       return self
+    end
+
+    def manpage_path
+      path = nil
+
+      if File.exists?("#{Antfarm.root}/lib/antfarm/plugins/#{self.name}/man/#{self.name}.1.ronn")
+        path = Antfarm.root + "/lib/antfarm/plugins/#{self.name}/man/#{self.name}.1.ronn"
+      elsif File.exists?("#{Antfarm::Helpers.user_plugins_dir}/#{self.name}/man/#{self.name}.1.ronn")
+        path = Antfarm::Helpers.user_plugins_dir + "/#{self.name}/man/#{self.name}.1.ronn"
+      end
+
+      return path
     end
 
     #######
