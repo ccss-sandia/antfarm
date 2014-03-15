@@ -67,13 +67,7 @@ when 'man'
   if ARGV.empty?
     path = Antfarm.root + '/man/antfarm.1.ronn'
   else
-    plugin = ARGV.shift
-
-    if File.exists?("#{Antfarm.root}/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn")
-      path = Antfarm.root + "/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn"
-    elsif File.exists?("#{Antfarm::Helpers.user_plugins_dir}/#{plugin}/man/#{plugin}.1.ronn")
-      path = Antfarm::Helpers.user_plugins_dir + "/#{plugin}/man/#{plugin}.1.ronn"
-    end
+    path = Antfarm::Plugin.manpage_path(ARGV.shift)
   end
 
   if path

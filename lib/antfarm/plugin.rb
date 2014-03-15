@@ -75,6 +75,18 @@ module Antfarm
       end
     end
 
+    def self.manpage_path(plugin)
+      path = nil
+
+      if File.exists?("#{Antfarm.root}/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn")
+        path = Antfarm.root + "/lib/antfarm/plugins/#{plugin}/man/#{plugin}.1.ronn"
+      elsif File.exists?("#{Antfarm::Helpers.user_plugins_dir}/#{plugin}/man/#{plugin}.1.ronn")
+        path = Antfarm::Helpers.user_plugins_dir + "/#{plugin}/man/#{plugin}.1.ronn"
+      end
+
+      return path
+    end
+
     # can use the 'options' attribute to build option parsers
     # in command-line interfaces... :-)
     attr_accessor :name, :info, :options, :plugin_module
