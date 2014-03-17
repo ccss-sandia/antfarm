@@ -98,10 +98,10 @@ module Antfarm
     def manpage_path
       path = nil
 
-      if File.exists?("#{Antfarm.root}/lib/antfarm/plugins/#{self.name}/man/#{self.name}.1.ronn")
-        path = Antfarm.root + "/lib/antfarm/plugins/#{self.name}/man/#{self.name}.1.ronn"
-      elsif File.exists?("#{Antfarm::Helpers.user_plugins_dir}/#{self.name}/man/#{self.name}.1.ronn")
-        path = Antfarm::Helpers.user_plugins_dir + "/#{self.name}/man/#{self.name}.1.ronn"
+      if File.exists?("#{Antfarm.root}/lib/antfarm/plugins/#{self.name}/man/#{self.name}.1")
+        path = Antfarm.root + "/lib/antfarm/plugins/#{self.name}/man/#{self.name}.1"
+      elsif File.exists?("#{Antfarm::Helpers.user_plugins_dir}/#{self.name}/man/#{self.name}.1")
+        path = Antfarm::Helpers.user_plugins_dir + "/#{self.name}/man/#{self.name}.1"
       end
 
       return path

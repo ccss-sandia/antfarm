@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'antfarm'
-require 'ronn'
 require 'trollop'
 
 COMMANDS  = ['console', 'help', 'init', 'list', 'man', 'server']
@@ -65,7 +64,7 @@ when 'man'
   pid   = nil
 
   if ARGV.empty?
-    path = Antfarm.root + '/man/antfarm.1.ronn'
+    path = Antfarm.root + '/man/antfarm.1'
   else
     if plugin = Antfarm.plugins[ARGV.shift]
       path = plugin.manpage_path
@@ -73,26 +72,20 @@ when 'man'
   end
 
   if path
-    doc = Ronn::Document.new(path, { 'styles' => ['man'] })
-
-    if doc
-      rd, wr = IO.pipe
-      if pid = fork
-        rd.close
-      else
-        wr.close
-        STDIN.reopen rd
-        exec "#{groff} | #{pager}"
-      end
-
-      wr.puts(doc.convert('roff'))
-
-      if pid
-        wr.close
-        Process.wait
-      end
+    rd, wr = IO.pipe
+    if pid = fork
+      rd.close
     else
-      Antfarm.output 'There was an error rendering the man page'
+      wr.close
+      STDIN.reopen rd
+      exec "#{groff} | #{pager}"
+    end
+
+    wr.puts(File.read(path))
+
+    if pid
+      wr.close
+      Process.wait
     end
   else
     if plugin
