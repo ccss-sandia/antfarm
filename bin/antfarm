@@ -3,7 +3,7 @@
 require 'antfarm'
 require 'trollop'
 
-COMMANDS  = ['console', 'help', 'init', 'list', 'man', 'server']
+COMMANDS  = ['console', 'help', 'init', 'list', 'man']
 COMMANDS << Antfarm.plugins.keys
 COMMANDS.flatten
 
@@ -20,7 +20,6 @@ Usage:
   antfarm <globals> list                # List the available plugins
   antfarm <globals> init                # Initialize the database for the given environment
   antfarm <globals> man <plugin>        # Show man page for ANTFARM or specified plugin
-  antfarm <globals> server              # Start the web server for the given environment
   antfarm <globals> <plugin> <options>  # Execute given plugin with given options
 
 Where <globals> are:
@@ -155,9 +154,6 @@ when 'init'
   FileUtils.rm_f(Antfarm::Helpers.log_file)
 
   load 'antfarm/schema.rb'
-when 'server'
-  require 'antfarm/web/app'
-  Antfarm::Web::Server.run! :environment => 'development', :server => 'thin', :port => 8080
 else
   if plugin = Antfarm.plugins[command]
 
