@@ -38,7 +38,6 @@ module Antfarm
 
       after_create :create_ip_net
       after_create :associate_l3_net
-#     after_create :publish_info
 
       validates :address, :presence => true
       validates :l3_if,   :presence => true
@@ -114,13 +113,6 @@ module Antfarm
         if layer3_network = L3Net.network_containing(self.address)
           self.l3_if.update_attribute :l3_net, layer3_network
         end
-      end
-
-      def publish_info
-          node = self.l3_if.l2_if.node
-          net  = self.l3_if.l3_net.ip_net
-          data = { :link => { :source => "node:#{node.id}", :target => "net:#{net.id}", :value => 1 } }
-          Antfarm.output 'create', JSON.generate(data)
       end
 
       # Allow prefix provided to be nil just in case this
