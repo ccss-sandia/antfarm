@@ -38,11 +38,6 @@ used, which is also the default), and log files generated when using ANTFARM.
 Custom plugins created by users will be made available to the ANTFARM
 application when they are placed in the '.antfarm/plugins' directory.
 
-Each plugin developed for ANTFARM specifies the input and/or output requirements
-when being used. To see what inputs are required for a particular plugin, run:
-
-    $ antfarm help <plugin>
-
 ## OPTIONS
 
 ANTFARM's default method of operation is to parse input data or generate output
@@ -73,45 +68,29 @@ arguments. Global ANTFARM options include:
 
 ## EXAMPLES
 
-Display the default help message for ANTFARM:
+  * `antfarm` or `antfarm -h` or `antfarm help`:
+    Display the default help message for ANTFARM
 
-    $ antfarm -h
+  * `antfarm list`:
+    List all the plugins currently available in ANTFARM
 
-    or
+  * `antfarm help <plugin>`:
+    Show information specific to an available ANTFARM plugin
 
-    $ antfarm help
+  * `antfarm console` or `antfarm -e <env> console`:
+    Drop into a console with access to all the ANTFARM data models
 
-    or just
+  * `antfarm init` or `antfarm -e <env> init`:
+    (Re)Initialize the ANTFARM database (warning -- destructive!)
 
-    $ antfarm
+  * `antfarm pcap -f path/to/pcap/file.pcap`:
+    Execute the ANTFARM pcap plugin
 
-List all the plugins currently available in ANTFARM:
+  * `antfarm -e <env> pcap -f path/to/pcap/file.pcap`:
+    Execute the ANTFARM pcap plugin using a specified environment
 
-    $ antfarm list
-
-Show information specific to an available ANTFARM plugin:
-
-    $ antfarm help <plugin>
-
-Drop into a Pry console with access to all the ANTFARM data models:
-
-    $ antfarm console
-
-    or
-
-    $ antfarm -e env console
-
-Execute an ANTFARM plugin:
-
-    $ antfarm pcap -f path/to/pcap/file.pcap
-
-Execute an ANTFARM plugin using a specified environment:
-
-    $ antfarm -e env pcap -f path/to/pcap/file.pcap
-
-Execute an ANTFARM plugin using a specified environment and log level:
-
-    $ antfarm -e env -l debug pcap -f path/to/pcap/file.pcap
+  * `antfarm -e <env> -l debug pcap -f path/to/pcap/file.pcap`:
+    Execute the ANTFARM pcap plugin using a specified environment and log level
 
 ## HOMEPAGE
 

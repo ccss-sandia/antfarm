@@ -24,19 +24,6 @@ While the ANTFARM tool itself is completely passive (it does not have any built\
 .SH "FILES"
 Unless it already exists, a \'\.antfarm\' directory is created in the current user\'s home directory\. This directory will contain a default configuration file, the SQLite3 database used by ANTFARM (if the user specifies for SQLite3 to be used, which is also the default), and log files generated when using ANTFARM\. Custom plugins created by users will be made available to the ANTFARM application when they are placed in the \'\.antfarm/plugins\' directory\.
 .
-.P
-Each plugin developed for ANTFARM specifies the input and/or output requirements when being used\. To see what inputs are required for a particular plugin, run:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm help <plugin>
-.
-.fi
-.
-.IP "" 0
-.
 .SH "OPTIONS"
 ANTFARM\'s default method of operation is to parse input data or generate output data using a specified plugin\. The plugin to use is specified on the command line as a sub\-command, and each plugin developed specifies it\'s own required arguments\. Global ANTFARM options include:
 .
@@ -61,107 +48,38 @@ Display the current version of ANTFARM\.
 Display useful help information for ANTFARM\.
 .
 .SH "EXAMPLES"
-Display the default help message for ANTFARM:
 .
-.IP "" 4
+.TP
+\fBantfarm\fR or \fBantfarm \-h\fR or \fBantfarm help\fR
+Display the default help message for ANTFARM
 .
-.nf
-
-$ antfarm \-h
-
-or
-
-$ antfarm help
-
-or just
-
-$ antfarm
+.TP
+\fBantfarm list\fR
+List all the plugins currently available in ANTFARM
 .
-.fi
+.TP
+\fBantfarm help <plugin>\fR
+Show information specific to an available ANTFARM plugin
 .
-.IP "" 0
+.TP
+\fBantfarm console\fR or \fBantfarm \-e <env> console\fR
+Drop into a console with access to all the ANTFARM data models
 .
-.P
-List all the plugins currently available in ANTFARM:
+.TP
+\fBantfarm init\fR or \fBantfarm \-e <env> init\fR
+(Re)Initialize the ANTFARM database (warning \-\- destructive!)
 .
-.IP "" 4
+.TP
+\fBantfarm pcap \-f path/to/pcap/file\.pcap\fR
+Execute the ANTFARM pcap plugin
 .
-.nf
-
-$ antfarm list
+.TP
+\fBantfarm \-e <env> pcap \-f path/to/pcap/file\.pcap\fR
+Execute the ANTFARM pcap plugin using a specified environment
 .
-.fi
-.
-.IP "" 0
-.
-.P
-Show information specific to an available ANTFARM plugin:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm help <plugin>
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Drop into a Pry console with access to all the ANTFARM data models:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm console
-
-or
-
-$ antfarm \-e env console
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Execute an ANTFARM plugin:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm pcap \-f path/to/pcap/file\.pcap
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Execute an ANTFARM plugin using a specified environment:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm \-e env pcap \-f path/to/pcap/file\.pcap
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Execute an ANTFARM plugin using a specified environment and log level:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm \-e env \-l debug pcap \-f path/to/pcap/file\.pcap
-.
-.fi
-.
-.IP "" 0
+.TP
+\fBantfarm \-e <env> \-l debug pcap \-f path/to/pcap/file\.pcap\fR
+Execute the ANTFARM pcap plugin using a specified environment and log level
 .
 .SH "HOMEPAGE"
 See https://github\.com/ccss\-sandia/antfarm for more details\.
