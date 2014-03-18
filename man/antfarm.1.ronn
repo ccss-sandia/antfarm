@@ -66,6 +66,23 @@ arguments. Global ANTFARM options include:
   * `-h`, `--help`:
     Display useful help information for ANTFARM.
 
+To avoid having to provide these global options at the command line every time
+ANTFARM is run, users can choose to set the default values for these options in
+the configuration file located at '~/.antfarm/config.yml'. An example YAML
+config file is below.
+
+    ----
+    # set the default global options
+    environment: foo
+    log_level:   debug
+    prefix:      30
+
+    foo: # set the database adapter for environment 'foo'
+      adapter: sqlite3
+
+    bar: # set the database adapter for environment 'bar'
+      adapter: postgres
+
 ## EXAMPLES
 
   * `antfarm` or `antfarm -h` or `antfarm help`:
