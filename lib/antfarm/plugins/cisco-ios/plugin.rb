@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2010) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -52,25 +52,13 @@ module Antfarm
     def run(opts = Hash.new)
       check_options(opts)
 
-      files = Array.new
-
-      if File.directory?(opts[:file])
-        Dir["#{opts[:file]}/*"].each do |file|
-          files << File.expand_path(file, opts[:file])
-        end
-      elsif File.exists?(opts[:file])
-        files << opts[:file]
-      else
-        raise "Config file #{opts[:file]} doesn't exist"
-      end
-
-      files.each do |file|
-        Antfarm.output "Parsing config file #{file}"
+      read_data(opts[:file]) do |path,lines|
+        Antfarm.output "Parsing config file #{path}"
 
         ios_version_regexp  = /^(\A.*|IOS|PIX|ASA)[V|v]ersion ((\d+)\.(\d+)(\((\d+)\))?)/
         hostname_regexp     = /^hostname (\S+)/
         ipv4_regexp         = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
-        iface_addr_regexp   = /ip address #{ipv4_regexp} #{ipv4_regexp}/ 
+        iface_addr_regexp   = /ip address #{ipv4_regexp} #{ipv4_regexp}/
         net_object_regexp   = /network-object #{ipv4_regexp} #{ipv4_regexp}/
         net_obj_host_regexp = /network-object host #{ipv4_regexp}/
         route_regexp        = /^route \S+ #{ipv4_regexp} #{ipv4_regexp} #{ipv4_regexp}/
@@ -82,22 +70,20 @@ module Antfarm
         addresses  = Array.new
         networks   = Array.new
 
-        File.open(file) do |list|
-          list.each do |line|
-            if match = ios_version_regexp.match(line)
-              ios_version = match[2].to_i unless ios_version
-            elsif match = hostname_regexp.match(line)
-              hostname = match[1] unless hostname
-            elsif match = iface_addr_regexp.match(line)
-              interfaces << "#{match[1]}/#{match[2]}"
-            elsif !opts[:interfaces_only] and match = net_object_regexp.match(line)
-              networks << "#{match[1]}/#{match[2]}"
-            elsif !opts[:interfaces_only] and match = net_obj_host_regexp.match(line)
-              addresses << match[1]
-            elsif !opts[:interfaces_only] and match = route_regexp.match(line)
-              networks  << "#{match[1]}/#{match[2]}" unless match[1] == '0.0.0.0'
-              addresses << match[3]
-            end
+        lines.each do |line|
+          if match = ios_version_regexp.match(line)
+            ios_version = match[2].to_i unless ios_version
+          elsif match = hostname_regexp.match(line)
+            hostname = match[1] unless hostname
+          elsif match = iface_addr_regexp.match(line)
+            interfaces << "#{match[1]}/#{match[2]}"
+          elsif !opts[:interfaces_only] and match = net_object_regexp.match(line)
+            networks << "#{match[1]}/#{match[2]}"
+          elsif !opts[:interfaces_only] and match = net_obj_host_regexp.match(line)
+            addresses << match[1]
+          elsif !opts[:interfaces_only] and match = route_regexp.match(line)
+            networks  << "#{match[1]}/#{match[2]}" unless match[1] == '0.0.0.0'
+            addresses << match[3]
           end
         end
 
@@ -118,25 +104,27 @@ module Antfarm
           interfaces.uniq!
 
           node = Antfarm::Models::Node.find_or_create_by_name!(
-            :name => hostname, :device_type => 'Cisco PIX/ASA',
+            :name => hostname, :device_type => 'router',
             :certainty_factor => 1.0
           )
+
+          node.tags.find_or_create_by_name! :name => 'Cisco PIX/ASA'
 
           interfaces.each do |address|
             Antfarm.output "  Creating IP interface for #{address} based on interface configuration."
 
-            iface = Antfarm::Models::Layer3Interface.interface_addressed(address)
+            iface = Antfarm::Models::L3If.interface_addressed(address)
 
             if iface
               Antfarm.output "  Found an existing interface with address #{address}."
               Antfarm.output '  Updating its associated node.'
 
-              node.merge_from(iface.layer2_interface.node)
+              node.merge_from(iface.l2_if.node)
             else
-              node.layer2_interfaces.create(
+              node.l2_ifs.create(
                 :certainty_factor => 1.0, :media_type => 'Ethernet',
-                :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
-                  :ip_interface_attributes => { :address => address }
+                :l3_ifs_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
+                  :ip_ifattributes => { :address => address }
                 }]
               )
             end
@@ -149,16 +137,16 @@ module Antfarm
             addresses.each do |address|
               Antfarm.output "  Creating IP interface for #{address} based on host or route entry."
 
-              iface = Antfarm::Models::Layer3Interface.interface_addressed(address)
+              iface = Antfarm::Models::L3If.interface_addressed(address)
 
               if iface
                 Antfarm.output "  Record already exists for #{address}."
               else
                 Antfarm::Models::Node.create!(
-                  :certainty_factor => 0.25, :device_type => 'generic host',
-                  :layer2_interfaces_attributes => [{ :certainty_factor => 1.0, :media_type => 'Ethernet',
-                    :layer3_interfaces_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
-                      :ip_interface_attributes => { :address => address }
+                  :certainty_factor => 0.25, :device_type => 'host',
+                  :l2_ifs_attributes => [{ :certainty_factor => 1.0, :media_type => 'Ethernet',
+                    :l3_ifs_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
+                      :ip_if_attributes => { :address => address }
                     }]
                   }]
                 )
@@ -168,12 +156,12 @@ module Antfarm
             networks.each do |network|
               Antfarm.output "  Creating IP network for #{network} based on network object entry."
 
-              l3net = Antfarm::Models::Layer3Network.network_addressed(network)
+              l3net = Antfarm::Models::L3Net.network_addressed(network)
 
               if l3net
                 Antfarm.output "  Record already exists for #{network}."
               else
-                Antfarm::Models::Layer3Network.create!(
+                Antfarm::Models::L3Net.create!(
                   :certainty_factor => 1.0,
                   :ip_net_attributes => { :address => network }
                 )
