@@ -165,8 +165,6 @@ else
       end
     end
 
-    Antfarm.output options
-
     plugin.run(options)
   else
     Antfarm.output "Invalid command '#{command}' given. See help message below for valid commands.\n\n"

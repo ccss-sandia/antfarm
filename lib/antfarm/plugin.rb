@@ -149,29 +149,22 @@ module Antfarm
     end
 
     # Handle the reading of data from files in a common way for all plugins.
-    # My hope is that I can override this method in tests to provide custom
-    # test data via StringIO objects... we'll see!
+    # Also supports providing data to plugins via StringIO when testing.
     def read_data(path, &block)
-#      files = Array.new
-
       if File.directory?(path)
         Dir["#{path}/*"].each do |file|
-#          files << File.expand_path(file, path)
           expanded = File.expand_path(file, path)
           File.open(expanded) do |fh|
             yield expanded, fh
           end
         end
       elsif File.exists?(path)
-#        files << path
         File.open(path) do |fh|
           yield path, fh
         end
       else
         raise "Data file #{path} doesn't exist"
       end
-
-#      return files
     end
   end
 end
