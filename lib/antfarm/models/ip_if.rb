@@ -31,11 +31,46 @@
 
 module Antfarm
   module Models
+    # Data model for an IP Interface
+    #
+    # When IP Interfaces are saved (create/update), the <tt>address</tt>
+    # attribute is validated and checks are run to see if a L3 Network exists
+    # to associate the interface to. If one does not already exist, a new L3
+    # Network model is created and assocated with the IP Interface. The rules
+    # for determining what size of new L3 Network to create are described as
+    # follows:
+    #
+    # If subnet information is included in the IP address provided, then that
+    # is used to create the new L3 Network.
+    #
+    # Otherwise, a default subnet prefix (usually /30) is used to create the
+    # new L3 Network. If, when the new L3 Network is created, it results in the
+    # address being a network address rather than a host address (for example,
+    # 192.168.0.100/30), the prefix is changed to /29. One can override the
+    # default subnet prefix to use when creating new L3 Networks by wrapping
+    # the creation code with the <tt>IPIf.execute_with_prefix</tt> call.
+    #
+    #    Antfarm::Models::IPIf.execute_with_prefix(24) do
+    #      Antfarm::Models::IPIf.new(:address => '192.168.0.100')
+    #    end
     class IPIf < ActiveRecord::Base
+      # Representation of IP address as <tt>Antfarm::IPAddrExt</tt> object
+      #--
+      # This is useful for tracking the subnet prefix (if provided) during
+      # initial creation of the IP Interface model, which is used for deciding
+      # what type of L3 Network to create.
+      #++
       attr_accessor :addr # IPAddrExt object so we can track prefix if provided
 
       belongs_to :l3_if, :inverse_of => :ip_if
 
+      # TODO: figure out why it fails when `after_save` is used...
+      #
+      # Recursion seems to occur in the `associate_l3_net` method when called
+      # after every save... it's like the call to update attributes on the L3
+      # Interface for this IP Interface causes this model to be saved again,
+      # therein causing recursion since the `associate_l3_net` method is called
+      # once again.
       after_create :create_ip_net
       after_create :associate_l3_net
 
@@ -57,7 +92,7 @@ module Antfarm
           # This block is run outside of the context of a model instance,
           # so `@addr` cannot be used here. Rather, we must reference it via
           # the attribute accessor `addr` available on the model instance.
-          record.addr = Antfarm::IPAddrExt.new(value)
+          record.addr    = Antfarm::IPAddrExt.new(value)
           record.address = record.addr.to_s
 
           # Don't save the interface if it's a loopback address.
@@ -70,14 +105,8 @@ module Antfarm
           # case the data given for this address includes more detailed
           # information about its network.
           unless record.addr.private_address?
-            interface = IPIf.find_by_address(record.address)
-            if interface
-              # We have to call `create_ip_net` here even though an
-              # `after_create` callback exists to call `create_ip_net` because
-              # if we're in this block of code then we're adding errors to the
-              # record and as such it won't actually be created and callbacks
-              # won't be executed.
-              record.create_ip_net
+            if interface = IPIf.find_by_address(record.address)
+              interface.update_attribute :address, value
               message = "#{record.address} already exists, but a new IP Network was created"
               record.errors.add(:address, message)
               Antfarm.log :info, message
@@ -88,6 +117,26 @@ module Antfarm
         end
       end
 
+      # Allow prefix provided to be nil just in case this call is part of a loop
+      # that may or may not need to change the prefix.
+      def self.execute_with_prefix(prefix = nil, &block)
+        if prefix.nil?
+          yield
+        else
+          original_prefix = Antfarm.config.prefix
+          Antfarm.config.prefix = prefix.to_i
+          yield
+          Antfarm.config.prefix = original_prefix
+        end
+      end
+
+      #######
+      private
+      #######
+
+      # Create an IP Network (and its associated L3 Network) that would contain
+      # the IP address provided for this IP Interface model unless one already
+      # exists.
       def create_ip_net
         # Check to see if a network exists that contains this address.
         # If not, create a small one that does.
@@ -108,29 +157,17 @@ module Antfarm
           L3Net.create!(
             :certainty_factor => certainty_factor,
             :protocol => 'IP',
-            :ip_net_attributes => { :address => @addr.to_cidr_string }
+            :ip_net_attributes => { :address => @addr.net_cidr_string }
           )
         end
       end
 
+      # Based on the current value of the <tt>address</tt> attribute, checks to
+      # see if an existing L3 Network would contain the IP address. If so, this
+      # model is associated with the L3 Network.
       def associate_l3_net
         if layer3_network = L3Net.network_containing(self.address)
           self.l3_if.update_attribute :l3_net, layer3_network
-        end
-      end
-
-      # Allow prefix provided to be nil just in case this
-      # call is part of a loop that may or may not need
-      # to change the prefix. See the `traceroute` plugin
-      # for an example use case such as this.
-      def self.execute_with_prefix(prefix = nil, &block)
-        if prefix.nil?
-          yield
-        else
-          original_prefix = Antfarm.config.prefix
-          Antfarm.config.prefix = prefix.to_i
-          yield
-          Antfarm.config.prefix = original_prefix
         end
       end
     end
