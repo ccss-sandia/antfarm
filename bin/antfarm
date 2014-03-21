@@ -141,9 +141,18 @@ when 'list'
   if Antfarm.plugins.empty?
     Antfarm.output 'No plugins currently loaded.'
   else
+    require 'terminal-table'
+
+    rows = Array.new
     Antfarm.plugins.each do |k,v|
-      Antfarm.output "#{k} - #{v.info[:desc]}"
+      rows << [k, v.info[:desc]]
     end
+
+    table = Terminal::Table.new :title    => 'Available ANTFARM Plugins',
+                                :headings => ['Plugin', 'Description'],
+                                :rows     => rows
+
+    Antfarm.output "\n#{table.to_s}\n\n"
   end
 when 'init'
   require 'fileutils'
@@ -164,8 +173,6 @@ else
         opt option[:name].to_sym, option[:desc], :type => option[:type], :required => option[:required]
       end
     end
-
-    Antfarm.output options
 
     plugin.run(options)
   else

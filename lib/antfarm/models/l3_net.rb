@@ -43,8 +43,8 @@ module Antfarm
 
       validates :certainty_factor, :presence => true
 
-      # Take the given network and merge with it
-      # any sub_networks of the given network.
+      # Take the given network and merge with it any sub_networks of the given
+      # network.
       def self.merge(network, merge_certainty_factor = Antfarm::CF_PROVEN_TRUE)
         unless network
           raise AntfarmError, "nil argument supplied", caller
@@ -64,16 +64,13 @@ module Antfarm
               iface.update_attribute :l3_net, network
             end
 
-#           network.layer3_interfaces << sub_network.layer3_interfaces
-#           network.layer3_interfaces.flatten!
-#           network.layer3_interfaces.uniq!
-
-            # TODO: update network's certainty factor using sub_network's certainty factor.
+            # TODO: update network's certainty factor using sub_network's
+            #       certainty factor.
 
             network.save!
 
-            # Because of :dependent => :destroy above, calling destroy
-            # here will also cause destroy to be called on ip_net
+            # Because of :dependent => :destroy above, calling destroy here will
+            # also cause destroy to be called on ip_net
             sub_network.destroy
           end
         end
@@ -81,25 +78,28 @@ module Antfarm
 
       # Find the Layer3Network with the given address.
       def self.network_addressed(ip_net_str)
-        # Calling network_containing here because if a network already exists that encompasses
-        # the given network, we want to automatically use that network instead.
+        # Calling network_containing here because if a network already exists
+        # that encompasses the given network, we want to automatically use that
+        # network instead.
+        #
         # TODO: figure out how to use alias with class methods
         self.network_containing(ip_net_str)
       end
 
-      # Find the Layer3Network the given network is a sub_network of, if one exists.
+      # Find the Layer3Network the given network is a sub_network of, if one
+      # exists.
       def self.network_containing(ip_net_str)
         unless ip_net_str
           raise AntfarmError, "nil argument supplied", caller
         end
 
-        # Don't want to require a Layer3Network to be passed in case a check is being performed
-        # before a Layer3Network is created.
+        # Don't want to require a Layer3Network to be passed in case a check is
+        # being performed before a Layer3Network is created.
         network = Antfarm::IPAddrExt.new(ip_net_str)
 
         ip_nets = IPNet.find(:all)
         for ip_net in ip_nets
-          if Antfarm::IPAddrExt.new(ip_net.address).network_in_network?(network)
+          if ip_net.addr.network_in_network?(network)
             return L3Net.find(ip_net.id)
           end
         end
@@ -113,8 +113,8 @@ module Antfarm
           raise AntfarmError, "nil argument supplied", caller
         end
 
-        # Don't want to require a Layer3Network to be passed in case a check is being performed
-        # before a Layer3Network is created.
+        # Don't want to require a Layer3Network to be passed in case a check is
+        # being performed before a Layer3Network is created.
         network = Antfarm::IPAddrExt.new(ip_net_str)
         sub_networks = Array.new
 

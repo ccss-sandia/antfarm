@@ -47,8 +47,7 @@ module Antfarm
       validates :node,             :presence => true
       validates :certainty_factor, :presence => true
 
-      # Find and return the layer 2 interface
-      # with the given ethernet address.
+      # Find and return the layer 2 interface with the given ethernet address.
       def self.interface_addressed(mac_addr_str)
         unless mac_addr_str
           raise AntfarmError, 'nil argument supplied', caller

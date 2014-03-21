@@ -24,19 +24,6 @@ While the ANTFARM tool itself is completely passive (it does not have any built\
 .SH "FILES"
 Unless it already exists, a \'\.antfarm\' directory is created in the current user\'s home directory\. This directory will contain a default configuration file, the SQLite3 database used by ANTFARM (if the user specifies for SQLite3 to be used, which is also the default), and log files generated when using ANTFARM\. Custom plugins created by users will be made available to the ANTFARM application when they are placed in the \'\.antfarm/plugins\' directory\.
 .
-.P
-Each plugin developed for ANTFARM specifies the input and/or output requirements when being used\. To see what inputs are required for a particular plugin, run:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm help <plugin>
-.
-.fi
-.
-.IP "" 0
-.
 .SH "OPTIONS"
 ANTFARM\'s default method of operation is to parse input data or generate output data using a specified plugin\. The plugin to use is specified on the command line as a sub\-command, and each plugin developed specifies it\'s own required arguments\. Global ANTFARM options include:
 .
@@ -60,108 +47,136 @@ Display the current version of ANTFARM\.
 \fB\-h\fR, \fB\-\-help\fR
 Display useful help information for ANTFARM\.
 .
-.SH "EXAMPLES"
-Display the default help message for ANTFARM:
+.P
+To avoid having to provide these global options at the command line every time ANTFARM is run, users can choose to set the default values for these options in the configuration file located at \'~/\.antfarm/config\.yml\'\. An example YAML config file is below\.
 .
 .IP "" 4
 .
 .nf
 
-$ antfarm \-h
+\-\-\-\-
+# set the default global options
+environment: foo
+log_level:   debug
+prefix:      30
 
-or
+foo: # set the database adapter for environment \'foo\'
+  adapter: sqlite3
 
-$ antfarm help
+bar: # set the database adapter for environment \'bar\'
+  adapter: postgres
+.
+.fi
+.
+.IP "" 0
+.
+.SH "COMMANDS"
+.
+.TP
+\fBantfarm\fR or \fBantfarm \-h\fR or \fBantfarm help\fR
+Display the default help message for ANTFARM
+.
+.TP
+\fBantfarm list\fR
+List all the plugins currently available in ANTFARM
+.
+.TP
+\fBantfarm help <plugin>\fR
+Show information specific to an available ANTFARM plugin
+.
+.TP
+\fBantfarm console\fR or \fBantfarm \-e <env> console\fR
+Drop into a console with access to all the ANTFARM data models
+.
+.TP
+\fBantfarm init\fR or \fBantfarm \-e <env> init\fR
+(Re)Initialize the ANTFARM database (warning \-\- destructive!)
+.
+.TP
+\fBantfarm pcap \-f path/to/pcap/file\.pcap\fR
+Execute the ANTFARM pcap plugin
+.
+.TP
+\fBantfarm \-e <env> pcap \-f path/to/pcap/file\.pcap\fR
+Execute the ANTFARM pcap plugin using a specified environment
+.
+.TP
+\fBantfarm \-e <env> \-l debug pcap \-f path/to/pcap/file\.pcap\fR
+Execute the ANTFARM pcap plugin using a specified environment and log level
+.
+.SH "PLUGINS"
+ANTFARM boasts a plugin architecture that makes it easy for users to quickly develop their own plugins to support new input, output, and analysis capabilities\. Once developed and tested, plugins can either be pulled into the main ANTFARM Gem or can be packaged up as its own Rubygem\. The main ANTFARM Gem includes some Rubygem plugin code that registers Gem install/uninstall hooks to look for new ANTFARM plugins being installed as Gems\. When a Gem whose name begins with \'antfarm\-\' is installed, the Gem install hook registered by the main ANTFARM Gem copies relevant files from the newly installed Gem into the user\'s \'~/\.antfarm/plugins\' directory\. Similarly, when a Gem whose name begins with \'antfarm\-\' is uninstalled, the Gem uninstall hook registered by the main ANTFARM Gem deletes the relevant directory from the user\'s \'~/\.antfarm/plugins\' directory\.
+.
+.P
+To develop a plugin, one should clone the ANTFARM Git repository and bootstrap the development environment by running \'bundle install\'\. From there, the local version of ANTFARM can be run via \'bundle exec ruby bin/antfarm \.\.\.\'\. Plugins live in the \'lib/antfarm/plugins\' directory and should be in a subdirectory that matches the name of the plugin\. Within that named subdirectory, the file ANTFARM looks for is \'plugin\.rb\'\. This file is expected to implement a few required methods that the ANTFARM plugin architecture requires\. A minimalist example is shown below with some informational comments included\.
+.
+.IP "" 4
+.
+.nf
 
-or just
+module Antfarm
+  module Foo
+    # This is a required method, and is called after the plugin is
+    # registered in the ANTFARM application (see last line of code)\.
+    def self\.registered(plugin)
+      # This is the name of the plugin as it should be used on the command
+      # line\. It is assumed that this name matches the plugin directory
+      # name\.
+      plugin\.name = \'foo\'
+      # This is used when displaying the list of available plugins via the
+      # main ANTFARM command\.
+      plugin\.info = {
+        :desc   => \'The dreaded Foo plugin\.\.\.\',
+        :author => \'John Doe\'
+      }
+      # These are the options that are required for the plugin\. They are
+      # parsed by the Trollop Gem and provided to the \'run\' command below\.
+      plugin\.options = [{
+        :name     => \'file\', # \'\-\-file\' on the command line
+        :desc     => \'Config file to parse (can also be a directory)\',
+        :type     => String,
+        :required => true
+      },
+      {
+        :name => \'print_output\', # \'\-\-print\-output\' on the command line
+        :desc => \'Print the output to screen when parsing\'
+      }]
+    end
 
-$ antfarm
+    def run(opts)
+      # This is a built\-in helper method in the plugin architecture that
+      # will confirm the options provided meet all the requirements as
+      # defined above, over and beyond what Trollop doesn\'t check\. It raises
+      # exceptions if any errors are encountered\.
+      check_options(opts)
+
+      # Examples of how to pull data from provided options\.
+      file_name    = opts[:file]
+      print_output = opts[:print_output]
+
+      # This is another built\-in helper method in the plugin architecture
+      # that provides an easy way of reading in a file or a directory of
+      # files\. It also makes it easier to write tests for plugins that can
+      # provide data via a StringIO object rather than an actual file\.
+      read_data(file_name) do |path,lines|
+        lines\.each do |line|
+          # Do something with each line of data\.\.\.
+        end
+      end
+    end
+  end
+end
+
+# This is required \-\- registeres the above plugin with the ANTFARM plugin
+# architecture when this file is loaded during initialization\.
+Antfarm\.register(Antfarm::Foo)
 .
 .fi
 .
 .IP "" 0
 .
 .P
-List all the plugins currently available in ANTFARM:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm list
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Show information specific to an available ANTFARM plugin:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm help <plugin>
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Drop into a Pry console with access to all the ANTFARM data models:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm console
-
-or
-
-$ antfarm \-e env console
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Execute an ANTFARM plugin:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm pcap \-f path/to/pcap/file\.pcap
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Execute an ANTFARM plugin using a specified environment:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm \-e env pcap \-f path/to/pcap/file\.pcap
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Execute an ANTFARM plugin using a specified environment and log level:
-.
-.IP "" 4
-.
-.nf
-
-$ antfarm \-e env \-l debug pcap \-f path/to/pcap/file\.pcap
-.
-.fi
-.
-.IP "" 0
+Ideally, tests will be developed along with each plugin\. These can be placed in the \'test\' directory and as long as the name of the test file ends with \'_test\.rb\' it will be automatically included when \'rake test\' is run\.
 .
 .SH "HOMEPAGE"
 See https://github\.com/ccss\-sandia/antfarm for more details\.

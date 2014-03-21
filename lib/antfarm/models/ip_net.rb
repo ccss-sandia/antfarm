@@ -32,6 +32,8 @@
 module Antfarm
   module Models
     class IPNet < ActiveRecord::Base
+      attr_accessor :addr # IPAddrExt object (as opposed to just address string)
+
       belongs_to :l3_net,      :inverse_of => :ip_net
       belongs_to :private_net, :inverse_of => :ip_nets
 
@@ -43,26 +45,22 @@ module Antfarm
       validates :address, :presence => true
       validates :l3_net,  :presence => true
 
-      # Overriding the address setter in order to create an instance variable for an
-      # Antfarm::IPAddrExt object ip_net.  This way the rest of the methods in this
-      # class can confidently access the ip address for this network.
-      #
-      # the method address= is called by the constructor of this class.
-#     def address=(ip_addr) #:nodoc:
-#       @ip_net = Antfarm::IPAddrExt.new(ip_addr)
-#       super(@ip_net.to_cidr_string)
-#     end
+      # Create the `@addr` instance variable on the record when model is found
+      after_find do |record|
+        @addr = Antfarm::IPAddrExt.new(record.address)
+      end
 
       # Validate data for requirements before saving network to the database.
       #
-      # Was using validate_on_create, but decided that these restraints should occur
-      # on anything saved to the database at any time, including a create and an update.
+      # Was using validate_on_create, but decided that these restraints should
+      # occur on anything saved to the database at any time, including a create
+      # and an update.
       validates_each :address do |record, attr, value|
         begin
-          addr = Antfarm::IPAddrExt.new(value)
+          record.addr = Antfarm::IPAddrExt.new(value)
 
           # Don't save the network if it's a loopback network.
-          if addr.loopback_address?
+          if record.addr.loopback_address?
             record.errors.add(:address, "loopback address not allowed")
           end
         rescue ArgumentError
@@ -75,7 +73,7 @@ module Antfarm
       #######
 
       def set_private_address
-        self.private = Antfarm::IPAddrExt.new(self.address).private_address?
+        self.private = @addr.private_address?
 
         if self.private
           self.create_private_net :description => "Private network for #{self.address}"
