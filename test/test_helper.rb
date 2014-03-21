@@ -6,6 +6,7 @@ require 'antfarm'
 Antfarm::Initializer.run do |config|
   config.environment = 'test'
   config.log_level   = 'debug'
+  config.plugins_dir = Antfarm.root + '/../plugins'
 end
 
 require 'minitest/autorun'

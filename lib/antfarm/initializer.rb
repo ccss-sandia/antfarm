@@ -57,12 +57,14 @@ module Antfarm
 
     def process
       update_configuration
-
       Antfarm.config = @configuration
 
       initialize_database
       initialize_logger
       initialize_outputter
+
+      # plugins should ONLY be loaded after everything has been bootstrapped
+      require 'antfarm/plugin'
     end
 
     def init
@@ -87,7 +89,6 @@ module Antfarm
       require 'antfarm/ipaddress_ext'
       require 'antfarm/models'
       require 'antfarm/oui_parser'
-      require 'antfarm/plugin'
       require 'antfarm/version'
     end
 
@@ -179,12 +180,14 @@ module Antfarm
     attr_accessor :environment
     attr_accessor :log_level
     attr_accessor :outputter
+    attr_accessor :plugins_dir
     attr_accessor :prefix
 
     def initialize
       @environment = nil
       @log_level   = nil
       @outputter   = nil
+      @plugins_dir = nil
       @prefix      = nil
     end
 
