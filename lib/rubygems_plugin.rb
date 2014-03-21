@@ -1,3 +1,8 @@
+# Look for Gems being installed that start with `antfarm-` and assume they're
+# ANTFARM plugins. Determine the name of the plugin (everything after the
+# `antfarm-`), create a directory using the plugin name in the current user's
+# plugin directory, and copy any files in the root directory of the Gem that
+# are Ruby files as well as the `man` directory to the new plugin directory.
 Gem.post_install do |installer|
   gem_name = plugin_name = installer.spec.name
 
@@ -16,6 +21,10 @@ Gem.post_install do |installer|
   end
 end
 
+# Look for Gems being uninstalled that start with `antfarm-` and assume they're
+# ANTFARM plugins. Determine the name of the plugin (everything after the
+# `antfarm-`), and remove the directory with that name from the current user's
+# plugin directory.
 Gem.post_uninstall do |uninstaller|
   gem_name = plugin_name = uninstaller.spec.name
 
