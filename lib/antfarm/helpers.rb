@@ -102,7 +102,7 @@ module Antfarm
     end
 
     def self.user_plugins_dir
-      return Antfarm.config.plugins_dir || File.expand_path("#{self.user_dir}/plugins")
+      return File.expand_path("#{self.user_dir}/plugins")
     end
 
     #######
