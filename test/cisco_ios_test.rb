@@ -27,14 +27,16 @@ class CiscoIOSTest < TestCase
       end
     end
 
+    node = Fabricate :ipiface, :address => '10.0.2.1'
+
     opts = { :file => '/foo/bar/sucka' }
     Antfarm.plugins['cisco-ios'].run(opts)
 
     # one for device, one for network-object host, one for route
     assert_equal 3, Antfarm::Models::Node.count
 
-    # first node created should be the actual Cisco device
-    device = Antfarm::Models::Node.first
+    # second node created should be the actual Cisco device
+    device = Antfarm::Models::Node.all[1]
     assert_equal 'InetRouter', device.name
     assert device.tags.map(&:name).include?('router')
 
