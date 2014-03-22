@@ -169,7 +169,5 @@ module Antfarm
   end
 end
 
-Dir["#{Antfarm.root}/lib/antfarm/plugins/*.rb"].each          { |file| require file }
-Dir["#{Antfarm.root}/lib/antfarm/plugins/**/plugin.rb"].each  { |file| require file }
-Dir["#{Antfarm::Helpers.user_plugins_dir}/*.rb"].each         { |file| require file }
-Dir["#{Antfarm::Helpers.user_plugins_dir}/**/plugin.rb"].each { |file| require file }
+Dir["#{Antfarm.root}/lib/antfarm/plugins/*/**/plugin.rb"].each  { |file| require file }
+Dir["#{Antfarm::Helpers.user_plugins_dir}/*/**/plugin.rb"].each { |file| require file }

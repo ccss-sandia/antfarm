@@ -57,7 +57,6 @@ module Antfarm
 
     def process
       update_configuration
-
       Antfarm.config = @configuration
 
       initialize_database
