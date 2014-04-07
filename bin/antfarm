@@ -3,7 +3,7 @@
 require 'antfarm'
 require 'trollop'
 
-COMMANDS  = ['console', 'help', 'init', 'list', 'server']
+COMMANDS  = ['console', 'help', 'init', 'list', 'man']
 COMMANDS << Antfarm.plugins.keys
 COMMANDS.flatten
 
@@ -19,7 +19,7 @@ Usage:
   antfarm <globals> help <plugin>       # Display the application or plugin help message
   antfarm <globals> list                # List the available plugins
   antfarm <globals> init                # Initialize the database for the given environment
-  antfarm <globals> server              # Start the web server for the given environment
+  antfarm <globals> man <plugin>        # Show man page for ANTFARM or specified plugin
   antfarm <globals> <plugin> <options>  # Execute given plugin with given options
 
 Where <globals> are:
@@ -57,6 +57,48 @@ end
 # Executing command...
 
 case command
+when 'man'
+  groff = 'groff -Wall -mtty-char -mandoc -Tascii'
+  pager = ENV['MANPAGER'] || ENV['PAGER'] || 'more'
+  pid   = nil
+
+  if ARGV.empty?
+    path = Antfarm.root + '/man/antfarm.1'
+  else
+    if plugin = Antfarm.plugins[ARGV.shift]
+      path = plugin.manpage_path
+    end
+  end
+
+  if path
+    rd, wr = IO.pipe
+    if pid = fork
+      rd.close
+    else
+      wr.close
+      STDIN.reopen rd
+      exec "#{groff} | #{pager}"
+    end
+
+    wr.puts(File.read(path))
+
+    if pid
+      wr.close
+      Process.wait
+    end
+  else
+    if plugin
+      Antfarm.output 'The man page you requested does not exist'
+    else
+      Antfarm.output "The plugin you requested a man page for is unknown.\n"
+      Antfarm.output "Below is a list of known plugins.\n\n"
+
+      # TODO: write helper method for listing plugins
+      Antfarm.plugins.each do |k,v|
+        Antfarm.output "#{k} - #{v.info[:desc]}"
+      end
+    end
+  end
 when 'console'
   require 'pry'
   include Antfarm::Models
@@ -74,9 +116,8 @@ when 'help'
   if ARGV.empty?
     parser.educate
   else
-    plugin = ARGV.shift
-    if Antfarm.plugins.keys.include?(plugin)
-      plugin = Antfarm.plugins[plugin]
+    plugin_name = ARGV.shift
+    if plugin = Antfarm.plugins[plugin_name]
 
       # TODO: write parser creator and options helper methods
       parser = Trollop::Parser.new do
@@ -88,7 +129,7 @@ when 'help'
 
       parser.educate
     else
-      Antfarm.output "Unknown plugin '#{plugin}' given. Below is a list of known plugins.\n\n"
+      Antfarm.output "Unknown plugin '#{plugin_name}' given. Below is a list of known plugins.\n\n"
 
       # TODO: write helper method for listing plugins
       Antfarm.plugins.each do |k,v|
@@ -100,9 +141,18 @@ when 'list'
   if Antfarm.plugins.empty?
     Antfarm.output 'No plugins currently loaded.'
   else
+    require 'terminal-table'
+
+    rows = Array.new
     Antfarm.plugins.each do |k,v|
-      Antfarm.output "#{k} - #{v.info[:desc]}"
+      rows << [k, v.info[:desc]]
     end
+
+    table = Terminal::Table.new :title    => 'Available ANTFARM Plugins',
+                                :headings => ['Plugin', 'Description'],
+                                :rows     => rows
+
+    Antfarm.output "\n#{table.to_s}\n\n"
   end
 when 'init'
   require 'fileutils'
@@ -113,12 +163,8 @@ when 'init'
   FileUtils.rm_f(Antfarm::Helpers.log_file)
 
   load 'antfarm/schema.rb'
-when 'server'
-  require 'antfarm/web/app'
-  Antfarm::Web::Server.run! :environment => 'development', :server => 'thin', :port => 8080
 else
-  if Antfarm.plugins.keys.include?(command)
-    plugin = Antfarm.plugins[command]
+  if plugin = Antfarm.plugins[command]
 
     # TODO: only require if a default isn't set...
     options = Trollop::options do
@@ -127,8 +173,6 @@ else
         opt option[:name].to_sym, option[:desc], :type => option[:type], :required => option[:required]
       end
     end
-
-    Antfarm.output options
 
     plugin.run(options)
   else

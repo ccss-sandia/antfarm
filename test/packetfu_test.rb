@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'packetfu/modbus'
 
-class PcapParserTest < TestCase
+class PacketFuTest < TestCase
   test 'modbus parser works and so does oui parser' do
     PacketFu::PcapFile.read_packets('test/pcap-parser-test-data.pcap') do |pkt|
       begin

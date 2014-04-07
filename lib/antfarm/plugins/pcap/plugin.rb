@@ -1,6 +1,6 @@
 ################################################################################
 #                                                                              #
-# Copyright (2008-2012) Sandia Corporation. Under the terms of Contract        #
+# Copyright (2008-2014) Sandia Corporation. Under the terms of Contract        #
 # DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains       #
 # certain rights in this software.                                             #
 #                                                                              #
@@ -61,59 +61,59 @@ module Antfarm
             src = nil
             dst = nil
 
-            if s_ip_iface = Antfarm::Models::IPInterface.find_by_address(siaddr)
-              l2iface = s_ip_iface.layer3_interface.layer2_interface
+            if s_ip_iface = Antfarm::Models::IPIf.find_by_address(siaddr)
+              l2iface = s_ip_iface.l3_if.l2_if
 
-              if l2iface.ethernet_interface
+              if l2iface.eth_if
                 if l2iface.certainty_factor < Antfarm::CF_PROVEN_TRUE
-                  l2iface.ethernet_interface.update_attribute :address, smaddr
+                  l2iface.eth_if.update_attribute :address, smaddr
                 end
               else
-                l2iface.create_ethernet_interface! :address => smaddr
+                l2iface.create_eth_if! :address => smaddr
               end
 
-              src = s_ip_iface.layer3_interface
+              src = s_ip_iface.l3_if
             else
               node    = Antfarm::Models::Node.create! :certainty_factor => 0.5, :device_type => 'PCAP'
-              l2iface = node.layer2_interfaces.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
-                          :ethernet_interface_attributes => { :address => smaddr }
+              l2iface = node.l2_ifs.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
+                          :eth_if_attributes => { :address => smaddr }
 
               l2iface.tags.create! :name => Antfarm::OuiParser.get_name(smaddr) || 'Unknown Vendor'
 
-              src = l2iface.layer3_interfaces.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
-                      :ip_interface_attributes => { :address => siaddr }
+              src = l2iface.l3_ifs.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
+                      :ip_if_attributes => { :address => siaddr }
             end
 
-            if d_ip_iface = Antfarm::Models::IPInterface.find_by_address(diaddr)
-              l2iface = d_ip_iface.layer3_interface.layer2_interface
+            if d_ip_iface = Antfarm::Models::IPIf.find_by_address(diaddr)
+              l2iface = d_ip_iface.l3_if.l2_if
 
-              if l2iface.ethernet_interface
+              if l2iface.eth_if
                 if l2iface.certainty_factor < Antfarm::CF_PROVEN_TRUE
-                  l2iface.ethernet_interface.update_attribute :address, dmaddr
+                  l2iface.eth_if.update_attribute :address, dmaddr
                 end
               else
-                l2iface.create_ethernet_interface! :address => dmaddr
+                l2iface.create_eth_if! :address => dmaddr
               end
 
-              dst = d_ip_iface.layer3_interface
+              dst = d_ip_iface.l3_if
             else
               node    = Antfarm::Models::Node.create! :certainty_factor => 0.5, :device_type => 'PCAP'
-              l2iface = node.layer2_interfaces.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
-                          :ethernet_interface_attributes => { :address => dmaddr }
+              l2iface = node.l2_ifs.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
+                          :eth_if_attributes => { :address => dmaddr }
 
               l2iface.tags.create! :name => Antfarm::OuiParser.get_name(dmaddr) || 'Unknown Vendor'
 
-              dst = l2iface.layer3_interfaces.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
-                      :ip_interface_attributes => { :address => diaddr }
+              dst = l2iface.l3_ifs.create! :certainty_factor => Antfarm::CF_PROVEN_TRUE,
+                      :ip_if_attributes => { :address => diaddr }
             end
 
             if pkt.proto.include?('Modbus')
               if pkt.tcp_src == 502
-                src.layer2_interface.node.tags.find_or_create_by_name! :name => 'Modbus TCP Slave'
-                dst.layer2_interface.node.tags.find_or_create_by_name! :name => 'Modbus TCP Master'
+                src.l2_if.node.tags.find_or_create_by_name! :name => 'Modbus TCP Slave'
+                dst.l2_if.node.tags.find_or_create_by_name! :name => 'Modbus TCP Master'
               elsif pkt.tcp_dst == 502
-                src.layer2_interface.node.tags.find_or_create_by_name! :name => 'Modbus TCP Master'
-                dst.layer2_interface.node.tags.find_or_create_by_name! :name => 'Modbus TCP Slave'
+                src.l2_if.node.tags.find_or_create_by_name! :name => 'Modbus TCP Master'
+                dst.l2_if.node.tags.find_or_create_by_name! :name => 'Modbus TCP Slave'
               end
             end
 

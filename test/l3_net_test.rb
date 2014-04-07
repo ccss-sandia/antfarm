@@ -72,8 +72,8 @@ class L3NetTest < TestCase
 
     net1  = Fabricate :l3net,   :ip_net_attributes => { :address => '10.0.0.0/23' }
     net2  = Fabricate :l3net,   :ip_net_attributes => { :address => '10.0.0.0/24' }
-    iface = Fabricate :l3iface, :ip_if_attributes      => { :address => '10.0.0.1' },
-                                :l3_net          => net2
+    iface = Fabricate :l3iface, :ip_if_attributes  => { :address => '10.0.0.1' },
+                                :l3_net            => net2
 
     assert net2.ip_net, IPNet.find_by_address('10.0.0.0/24')
 

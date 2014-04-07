@@ -72,10 +72,6 @@ module Antfarm
     @logger_callback.call(level, msg) if @logger_callback
   end
 
-  def self.simplify_interfaces
-    #TODO
-  end
-
   def self.timestamp
     return Time.now.utc.xmlschema
   end
