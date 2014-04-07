@@ -29,8 +29,8 @@
 #                                                                              #
 ################################################################################
 
+require 'json'
 require 'slim'
-require 'tempfile'
 
 module Antfarm
   module ForceDirectedViz
@@ -64,8 +64,6 @@ module Antfarm
 
     def run(opts = Hash.new)
       check_options(opts)
-
-      require 'json'
 
       nodes = Array.new
       links = Array.new
