@@ -6,6 +6,9 @@
 #   Create matrix of data, each row containing count of connections
 #   between src/dst paiattr_reader :attr_namess
 
+require 'launchy'
+require 'slim'
+
 module Antfarm
   module ChordViz
     class Env
@@ -68,7 +71,7 @@ module Antfarm
       end
 
       # TODO: how to make this more cross-platform... Launchy gem perhaps?!
-      `open #{Antfarm::Helpers.user_tmp_dir}/#{opts[:file_name]}`
+      Launchy.open("#{Antfarm::Helpers.user_tmp_dir}/#{opts[:file_name]}")
     end
 
     def random_color_code
