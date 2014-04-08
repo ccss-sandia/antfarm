@@ -104,11 +104,14 @@ module Antfarm
           interfaces.uniq!
 
           node = Antfarm::Models::Node.find_or_create_by_name!(
-            :name => hostname, :device_type => 'router',
-            :certainty_factor => 1.0, :tags => [Antfarm::Models::Tag.new(:name => 'router')]
+            :name => hostname, :certainty_factor => Antfarm::CF_PROVEN_TRUE,
+            :tags => [
+              Antfarm::Models::Tag.new(:name => 'router'),
+              Antfarm::Models::Tag.new(:name => 'Cisco'),
+              Antfarm::Models::Tag.new(:name => 'PIX'),
+              Antfarm::Models::Tag.new(:name => 'ASA')
+            ]
           )
-
-          node.tags.find_or_create_by_name! :name => 'Cisco PIX/ASA'
 
           interfaces.each do |address|
             Antfarm.output "  Creating IP interface for #{address} based on interface configuration."
@@ -122,9 +125,9 @@ module Antfarm
               node.merge_from(iface.l2_if.node)
             else
               node.l2_ifs.create(
-                :certainty_factor => 1.0, :media_type => 'Ethernet',
-                :l3_ifs_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
-                  :ip_if_attributes => { :address => address }
+                :certainty_factor => Antfarm::CF_LIKELY_TRUE,
+                :l3_ifs_attributes => [{ :certainty_factor => Antfarm::CF_PROVEN_TRUE,
+                  :protocol => 'IP', :ip_if_attributes => { :address => address }
                 }]
               )
             end
@@ -147,9 +150,10 @@ module Antfarm
                 end
               else
                 Antfarm::Models::Node.create!(
-                  :certainty_factor => 0.25, :device_type => 'host',
-                  :l2_ifs_attributes => [{ :certainty_factor => 1.0, :media_type => 'Ethernet',
-                    :l3_ifs_attributes => [{ :certainty_factor => 1.0, :protocol => 'IP',
+                  :certainty_factor => Antfarm::CF_LACK_OF_PROOF,
+                  :l2_ifs_attributes => [{ :certainty_factor => Antfarm::CF_PROVEN_TRUE,
+                    :l3_ifs_attributes => [{
+                      :certainty_factor => Antfarm::CF_PROVEN_TRUE, :protocol => 'IP',
                       :ip_if_attributes => { :address => address[1] }
                     }]
                   }], :tags => [Antfarm::Models::Tag.new(:name => address[0])]
@@ -166,7 +170,7 @@ module Antfarm
                 Antfarm.output "  Record already exists for #{network}."
               else
                 Antfarm::Models::L3Net.create!(
-                  :certainty_factor => 1.0,
+                  :certainty_factor => Antfarm::CF_PROVEN_TRUE,
                   :ip_net_attributes => { :address => network }
                 )
               end
