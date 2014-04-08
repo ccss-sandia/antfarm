@@ -125,6 +125,7 @@ Antfarm.register(Antfarm::ForceDirectedViz)
 
 __END__
 
+<!-- D3js example taken from http://bl.ocks.org/mbostock/4062045 -->
 doctype html
 html
   head

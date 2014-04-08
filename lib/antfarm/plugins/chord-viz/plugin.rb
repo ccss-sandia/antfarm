@@ -35,7 +35,7 @@ require 'slim'
 module Antfarm
   module ChordViz
     class Env
-      attr_accessor :cities
+      attr_accessor :nodes
       attr_accessor :matrix
     end
 
@@ -63,25 +63,23 @@ module Antfarm
         csv[conn.dst_id] = true
       end
 
-      nodes  = csv.keys.sort
-      matrix = Array.new(nodes.size) { Array.new(nodes.size, 0) }
+      ifaces = csv.keys.sort
+      matrix = Array.new(ifaces.size) { Array.new(ifaces.size, 0) }
 
       Antfarm::Models::Connection.all.each do |conn|
-        i = nodes.index(conn.src_id)
-        j = nodes.index(conn.dst_id)
-
+        i = ifaces.index(conn.src_id)
+        j = ifaces.index(conn.dst_id)
         matrix[i][j] += 1
       end
 
-      cities = Array.new(nodes.size)
-      nodes.each_with_index do |node,index|
-        name = Antfarm::Models::L3If.find(node).l2_if.node.id
-
-        cities[index] = { :name => name, :color => random_color_code }
+      nodes = Array.new(ifaces.size)
+      ifaces.each_with_index do |iface,index|
+        name = Antfarm::Models::L3If.find(iface).l2_if.node.id
+        nodes[index] = { :name => name, :color => random_color_code }
       end
 
       env        = Env.new
-      env.cities = cities.to_json
+      env.nodes  = nodes.to_json
       env.matrix = matrix.to_json
 
       # Alternative to using DATA, since it won't work in required files...
@@ -114,6 +112,7 @@ Antfarm.register(Antfarm::ChordViz)
 
 __END__
 
+<!-- D3js example taken from http://bost.ocks.org/mike/uberdata/ -->
 doctype html
 html
   head
@@ -147,7 +146,7 @@ html
           outerRadius = Math.min(width, height) / 2 - 10,
           innerRadius = outerRadius - 24;
 
-      var cities = #{{cities}};
+      var nodes  = #{{nodes}};
       var matrix = #{{matrix}};
 
       var formatPercent = d3.format(".1%");
@@ -184,16 +183,11 @@ html
           .attr("class", "group")
           .on("mouseover", mouseover);
 
-      // Add a mouseover title.
-      //group.append("title").text(function(d, i) {
-      //  return cities[i].name + ": " + formatPercent(d.value) + " of origins";
-      //});
-
       // Add the group arc.
       var groupPath = group.append("path")
           .attr("id", function(d, i) { return "group" + i; })
           .attr("d", arc)
-          .style("fill", function(d, i) { return cities[i].color; });
+          .style("fill", function(d, i) { return nodes[i].color; });
 
       // Add a text label.
       var groupText = group.append("text")
@@ -202,7 +196,7 @@ html
 
       groupText.append("textPath")
           .attr("xlink:href", function(d, i) { return "#group" + i; })
-          .text(function(d, i) { return cities[i].name; });
+          .text(function(d, i) { return nodes[i].name; });
 
       // Remove the labels that don't fit. :(
       groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 - 16 < this.getComputedTextLength(); })
@@ -213,18 +207,8 @@ html
           .data(layout.chords)
           .enter().append("path")
           .attr("class", "chord")
-          .style("fill", function(d) { return cities[d.source.index].color; })
+          .style("fill", function(d) { return nodes[d.source.index].color; })
           .attr("d", path);
-
-      // Add an elaborate mouseover title for each chord.
-      //chord.append("title").text(function(d) {
-      //  return cities[d.source.index].name
-      //      + " → " + cities[d.target.index].name
-      //      + ": " + formatPercent(d.source.value)
-      //      + "\n" + cities[d.target.index].name
-      //      + " → " + cities[d.source.index].name
-      //      + ": " + formatPercent(d.target.value);
-      //});
 
       function mouseover(d, i) {
         chord.classed("fade", function(p) {
