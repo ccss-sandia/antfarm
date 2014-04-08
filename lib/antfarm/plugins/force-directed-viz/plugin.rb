@@ -29,7 +29,7 @@
 #                                                                              #
 ################################################################################
 
-require 'json'
+require 'launchy'
 require 'slim'
 
 module Antfarm
@@ -51,14 +51,9 @@ module Antfarm
         :default => 'fdv.html'
       },
       {
-        :name     => 'device_types',
-        :desc     => 'Device types (separated by commas) to include',
-        :type     => String,
-        :required => true
-      },
-      {
-        :name => 'include_nodes',
-        :desc => 'Include normal nodes in output'
+        :name => 'tags',
+        :desc => 'Node tags, separated by commas, to include (otherwise, all nodes will be included)',
+        :type => String
       }]
     end
 
@@ -68,22 +63,22 @@ module Antfarm
       nodes = Array.new
       links = Array.new
 
-      data  = { :nodes => nodes, :links => links }
-      types = opts[:device_types].split(',')
+      data = { :nodes => nodes, :links => links }
+      tags = opts[:tags].strip.split(',') rescue Array.new
 
       node_indexes = Hash.new
       net_indexes  = Hash.new
 
       Antfarm::Models::L3Net.all.each do |network|
-        if opts[:include_nodes]
+        if tags.empty?
           display = true
         else
           display = false
 
           network.l3_ifs.each do |iface|
-            node_type = iface.l2_if.node.device_type.split(' ')
+            node_tags = iface.l2_if.node.tags.map(&:name)
 
-            unless (types & node_type).empty?
+            unless (tags & node_tags).empty?
               display = true
               break
             end
@@ -97,11 +92,11 @@ module Antfarm
       end
 
       Antfarm::Models::Node.all.each do |node|
-        node_type = node.device_type.split(' ')
+        node_tags = node.tags.map(&:name)
 
-        if opts[:include_nodes] or not (types & node_type).empty?
+        if tags.empty? or not (tags & node_tags).empty?
           node_indexes[node.id] = nodes.length
-          nodes << { :name => "node-#{node.id}", :group => node.device_type, :label => node.name }
+          nodes << { :name => "node-#{node.id}", :group => node.tags.map(&:name), :label => node.name }
 
           node.l3_ifs.each do |iface|
             links << { :source => node_indexes[node.id], :target => net_indexes[iface.l3_net.id], :value => 1 }
@@ -121,8 +116,7 @@ module Antfarm
         f.write(content.render(env))
       end
 
-      # TODO: how to make this more cross-platform... Launchy gem perhaps?!
-      `open #{Antfarm::Helpers.user_tmp_dir}/#{opts[:file_name]}`
+      Launchy.open("#{Antfarm::Helpers.user_tmp_dir}/#{opts[:file_name]}")
     end
   end
 end
@@ -154,52 +148,52 @@ html
       var width = 800, height = 500;
 
       var color = function(group) {
-        if(group == 'host') {
+        if(group.indexOf('host') != -1) {
           return 'red';
-        } else if(group == 'router') {
+        } else if(group.indexOf('router') != -1) {
           return 'blue';
-        } else if(group == 'LAN') {
+        } else if(group.indexOf('LAN') != -1) {
           return 'green';
         }
       };
 
       var force = d3.layout.force()
-        .charge(-120)
-        .linkDistance(30)
-        .size([width, height]);
+          .charge(-120)
+          .linkDistance(30)
+          .size([width, height]);
 
       var svg = d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height);
+          .attr("width", width)
+          .attr("height", height);
 
       var graph = #{{data}}
 
       force.nodes(graph.nodes)
-        .links(graph.links)
-        .start();
+          .links(graph.links)
+          .start();
 
       var link = svg.selectAll(".link")
-        .data(graph.links)
-        .enter().append("line")
-        .attr("class", "link")
-        .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+          .data(graph.links)
+          .enter().append("line")
+          .attr("class", "link")
+          .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
       var node = svg.selectAll(".node")
-        .data(graph.nodes)
-        .enter().append("circle")
-        .attr("class", "node")
-        .attr("r", 5)
-        .style("fill", function(d) { return color(d.group); });
+          .data(graph.nodes)
+          .enter().append("circle")
+          .attr("class", "node")
+          .attr("r", 5)
+          .style("fill", function(d) { return color(d.group); });
 
       node.append("title")
-        .text(function(d) { return d.name; });
+          .text(function(d) { return d.name; });
 
       force.on("tick", function() {
         link.attr("x1", function(d) { return d.source.x; })
-          .attr("y1", function(d) { return d.source.y; })
-          .attr("x2", function(d) { return d.target.x; })
-          .attr("y2", function(d) { return d.target.y; });
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
 
         node.attr("cx", function(d) { return d.x; })
-          .attr("cy", function(d) { return d.y; });
+            .attr("cy", function(d) { return d.y; });
       });
