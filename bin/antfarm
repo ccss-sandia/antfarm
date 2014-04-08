@@ -170,7 +170,7 @@ else
     options = Trollop::options do
       banner "#{plugin.name} - #{plugin.info[:desc]}\n\nOptions:"
       plugin.options.each do |option|
-        opt option[:name].to_sym, option[:desc], :type => option[:type], :required => option[:required]
+        opt option[:name].to_sym, option[:desc], :type => option[:type], :required => option[:required], :default => option[:default]
       end
     end
 

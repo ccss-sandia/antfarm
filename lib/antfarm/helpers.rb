@@ -105,11 +105,15 @@ module Antfarm
       return File.expand_path("#{self.user_dir}/plugins")
     end
 
+    def self.user_tmp_dir
+      return File.expand_path("#{self.user_dir}/tmp")
+    end
+
     #######
     private
     #######
 
-    USER_DIRECTORIES = ['db', 'log', 'plugins']
+    USER_DIRECTORIES = ['db', 'log', 'plugins', 'tmp']
 
     def self.user_dir
       return @user_dir unless @user_dir.nil?
